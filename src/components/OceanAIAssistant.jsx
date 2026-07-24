@@ -41,8 +41,6 @@ export default function OceanAIAssistant({ onJumpToDepth }) {
     let actionTrigger = null;
     if (lowerQuery.includes('deepest') || lowerQuery.includes('hadal') || lowerQuery.includes('trench')) {
       actionTrigger = 'hadal';
-    } else if (lowerQuery.includes('lab') || lowerQuery.includes('bio') || lowerQuery.includes('jellyfish') || lowerQuery.includes('glow')) {
-      actionTrigger = 'biolab';
     } else if (lowerQuery.includes('twilight') || lowerQuery.includes('beginner')) {
       actionTrigger = 'twilight';
     } else if (lowerQuery.includes('submarine') || lowerQuery.includes('vessel')) {

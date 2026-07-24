@@ -62,19 +62,23 @@
   text-shadow: 0 0 35px rgba(255, 215, 0, 0.25);
 }
 
+.glow-text-cyan {
+  text-shadow: 0 0 20px rgba(0, 243, 255, 0.6);
+}
+
 /* Custom Minimal Scrollbar */
 ::-webkit-scrollbar {
-  width: 4px;
+  width: 3px;
 }
 ::-webkit-scrollbar-track {
   background: #01040a;
 }
 ::-webkit-scrollbar-thumb {
-  background: rgba(255, 255, 255, 0.15);
+  background: rgba(0, 243, 255, 0.12);
   border-radius: 2px;
 }
 ::-webkit-scrollbar-thumb:hover {
-  background: rgba(140, 232, 255, 0.4);
+  background: rgba(0, 243, 255, 0.3);
 }
 
 /* Smooth Canvas Overlay */
@@ -112,4 +116,112 @@ canvas {
   animation: floatSlow 8s ease-in-out infinite;
 }
 
+/* ── Organic Blob Morph for CreatureTooltip ─────────────────────────────── */
+@keyframes blobMorph {
+  0%, 100% {
+    border-radius: 40% 60% 55% 45% / 45% 55% 60% 40%;
+  }
+  20% {
+    border-radius: 52% 48% 40% 60% / 55% 42% 58% 45%;
+  }
+  40% {
+    border-radius: 35% 65% 60% 40% / 50% 60% 40% 50%;
+  }
+  60% {
+    border-radius: 48% 52% 45% 55% / 40% 52% 48% 60%;
+  }
+  80% {
+    border-radius: 55% 45% 52% 48% / 60% 45% 55% 40%;
+  }
+}
 
+/* ── Phosphorescent Pulse ─────────────────────────────────────────────── */
+@keyframes bioGlow {
+  0%, 100% {
+    opacity: 0.6;
+    filter: blur(0px);
+  }
+  50% {
+    opacity: 1;
+    filter: blur(0.5px);
+  }
+}
+
+.animate-bio-glow {
+  animation: bioGlow 3s ease-in-out infinite;
+}
+
+/* ── Rock Carved Text Utility ────────────────────────────────────────── */
+.text-carved {
+  text-shadow:
+    0 1px 2px rgba(0, 0, 0, 0.8),
+    0 0 30px rgba(0, 243, 255, 0.15),
+    inset 0 1px 0 rgba(255, 255, 255, 0.02);
+  color: rgba(180, 210, 240, 0.7);
+}
+
+/* ── Creature crosshair cursor ───────────────────────────────────────── */
+.cursor-crosshair {
+  cursor: crosshair;
+}
+
+/* ── Depth vignette z-index layer ────────────────────────────────────── */
+.z-21 {
+  z-index: 21;
+}
+.z-25 {
+  z-index: 25;
+}
+
+/* ── Section spacing — tighter cinematic dive ───────────────────────── */
+.space-y-dive > * + * {
+  margin-top: 0;
+}
+
+/* ── Animated sonar scan lines on buttons ───────────────────────────── */
+@keyframes scanLine {
+  0% { transform: translateY(-100%); opacity: 0.6; }
+  100% { transform: translateY(200%); opacity: 0; }
+}
+
+.animate-scan-line::after {
+  content: '';
+  position: absolute;
+  left: 0;
+  top: 0;
+  width: 100%;
+  height: 2px;
+  background: linear-gradient(90deg, transparent, rgba(0, 243, 255, 0.4), transparent);
+  animation: scanLine 2.5s ease-in-out infinite;
+  pointer-events: none;
+}
+
+/* ── Bioluminescent ink trail ────────────────────────────────────────── */
+@keyframes inkPulse {
+  0%, 100% { text-shadow: 0 0 12px currentColor; opacity: 0.7; }
+  50% { text-shadow: 0 0 25px currentColor, 0 0 50px currentColor; opacity: 1; }
+}
+
+.text-bio-ink {
+  animation: inkPulse 4s ease-in-out infinite;
+}
+
+/* ── Glass panel variants (kept for modals & Lab) ────────────────────── */
+.glass-panel {
+  background: rgba(6, 14, 30, 0.7);
+  backdrop-filter: blur(24px);
+  -webkit-backdrop-filter: blur(24px);
+}
+
+.glass-card {
+  background: rgba(4, 10, 22, 0.8);
+  backdrop-filter: blur(16px);
+  -webkit-backdrop-filter: blur(16px);
+}
+
+.glass-panel-glow {
+  background: rgba(6, 14, 30, 0.75);
+  backdrop-filter: blur(28px);
+  -webkit-backdrop-filter: blur(28px);
+  box-shadow: 0 0 40px rgba(0, 243, 255, 0.08);
+}

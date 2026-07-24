@@ -1,120 +1,286 @@
-import React from 'react';
-import { Compass, Thermometer, ShieldAlert, Activity, Radio } from 'lucide-react';
+import React, { useMemo, useState, useEffect } from 'react';
 import { OCEAN_ZONES } from '../utils/oceanData';
 
+/**
+ * DepthHUD — Submarine circular instrument panel.
+ * Replaces the rectangular glass card with an SVG sonar ring
+ * that looks like a porthole-mounted pressure gauge.
+ */
 export default function DepthHUD({ currentDepth, scrollProgress }) {
-  // Compute zone based on current depth
+  const [displayDepth, setDisplayDepth] = useState(currentDepth);
+
+  useEffect(() => {
+    let animId;
+    const updateLerp = () => {
+      setDisplayDepth((prev) => {
+        const diff = currentDepth - prev;
+        if (Math.abs(diff) < 0.5) return currentDepth;
+        return prev + diff * 0.14;
+      });
+      animId = requestAnimationFrame(updateLerp);
+    };
+    animId = requestAnimationFrame(updateLerp);
+    return () => cancelAnimationFrame(animId);
+  }, [currentDepth]);
+
+  const smoothDepth = Math.round(displayDepth);
+
   const currentZone = OCEAN_ZONES.find(
-    (z) => currentDepth >= z.depthMin && currentDepth <= z.depthMax
+    (z) => smoothDepth >= z.depthMin && smoothDepth <= z.depthMax
   ) || OCEAN_ZONES[OCEAN_ZONES.length - 1];
 
-  // Calculated hydrostatic pressure in atmospheres (P = 1 + depth / 10)
-  const pressureAtm = (1 + currentDepth / 10).toFixed(0);
-  
-  // Calculated temperature drop
-  let tempC = (25 - (currentDepth / 10994) * 23.9).toFixed(1);
-  if (currentDepth > 2000) tempC = (1.1 + (1 - currentDepth / 10994) * 1.5).toFixed(1);
+  const pressureAtm = Math.round(1 + smoothDepth / 10);
+  const tempC = smoothDepth > 2000
+    ? (1.1 + (1 - smoothDepth / 10994) * 1.5).toFixed(1)
+    : (25 - (smoothDepth / 10994) * 23.9).toFixed(1);
+  const depthPct = Math.min(100, (smoothDepth / 10994) * 100);
 
-  // Oxygen saturation
-  const oxygenPct = Math.max(24, (98 - (currentDepth / 10994) * 72)).toFixed(0);
+  // Zone color for the arc
+  const zoneColor = useMemo(() => {
+    if (scrollProgress < 0.18) return '#7dd3fc';
+    if (scrollProgress < 0.45) return '#818cf8';
+    if (scrollProgress < 0.72) return '#6366f1';
+    if (scrollProgress < 0.90) return '#00f3ff';
+    return '#c4b5fd';
+  }, [scrollProgress]);
+
+  const size = 180;
+  const cx = size / 2;
+  const cy = size / 2;
+  const r = 76;
+  const strokeW = 3;
+
+  // SVG arc path helper
+  const describeArc = (x, y, radius, startAngle, endAngle) => {
+    const start = polarToCartesian(x, y, radius, endAngle);
+    const end = polarToCartesian(x, y, radius, startAngle);
+    const largeArcFlag = endAngle - startAngle <= 180 ? '0' : '1';
+    return `M ${start.x} ${start.y} A ${radius} ${radius} 0 ${largeArcFlag} 0 ${end.x} ${end.y}`;
+  };
+
+  const polarToCartesian = (x, y, radius, angle) => {
+    const a = ((angle - 90) * Math.PI) / 180;
+    return { x: x + radius * Math.cos(a), y: y + radius * Math.sin(a) };
+  };
+
+  // Depth arc: goes from -130deg to +130deg (260deg total sweep)
+  const arcStart = -130;
+  const arcEnd = arcStart + (depthPct / 100) * 260;
+
+  // Tick marks around ring
+  const ticks = Array.from({ length: 13 }, (_, i) => {
+    const angle = -130 + i * (260 / 12);
+    const inner = polarToCartesian(cx, cy, r - 8, angle);
+    const outer = polarToCartesian(cx, cy, r - 2, angle);
+    return { inner, outer, major: i % 3 === 0 };
+  });
+
+  if (scrollProgress < 0.02) return null;
 
   return (
-    <div className="fixed right-4 md:right-8 top-28 z-30 pointer-events-none hidden sm:block">
-      <div className="glass-panel p-4 rounded-2xl w-60 border border-cyan-500/20 shadow-2xl backdrop-blur-xl pointer-events-auto transition-all duration-300 hover:border-cyan-400/50">
-        
-        {/* HUD Header & Radar Ping */}
-        <div className="flex items-center justify-between border-b border-cyan-900/40 pb-2 mb-3">
-          <div className="flex items-center space-x-2">
-            <Radio className="w-4 h-4 text-cyan-400 animate-pulse" />
-            <span className="text-[10px] font-mono tracking-widest text-cyan-300 uppercase">
-              ABYSS TELEMETRY
-            </span>
-          </div>
-          {/* Animated Sonar Radar Circle */}
-          <div className="relative w-5 h-5 flex items-center justify-center">
-            <span className="absolute inset-0 rounded-full border border-cyan-400/40 animate-ping opacity-75"></span>
-            <span className="w-1.5 h-1.5 bg-cyan-400 rounded-full"></span>
-          </div>
-        </div>
+    <div
+      className="fixed right-4 md:right-6 top-24 z-30 pointer-events-none hidden sm:block"
+      style={{
+        opacity: Math.min(1, scrollProgress * 8),
+        transform: `translateX(${Math.max(0, (1 - scrollProgress * 5) * 30)}px)`,
+        transition: 'opacity 0.8s ease, transform 0.8s ease',
+      }}
+    >
+      {/* Outer rim — submarine viewport mounting ring */}
+      <div
+        className="relative"
+        style={{
+          width: size + 24,
+          height: size + 24,
+        }}
+      >
+        {/* Mounting bolts (corners) */}
+        {[[-2, -2], [size + 18, -2], [-2, size + 18], [size + 18, size + 18]].map(([bx, by], i) => (
+          <div
+            key={i}
+            className="absolute w-3 h-3 rounded-full"
+            style={{
+              left: bx,
+              top: by,
+              background: 'radial-gradient(circle, rgba(60,80,100,0.9) 0%, rgba(20,30,45,0.8) 100%)',
+              border: '1px solid rgba(0,243,255,0.15)',
+              boxShadow: 'inset 0 1px 2px rgba(255,255,255,0.05)',
+            }}
+          />
+        ))}
 
-        {/* Big Depth Display */}
-        <div className="mb-3">
-          <div className="text-[10px] font-mono text-slate-400 flex justify-between">
-            <span>CURRENT DEPTH</span>
-            <span className="text-cyan-400 font-semibold">{currentZone.name.split(' ')[0]}</span>
-          </div>
-          <div className="flex items-baseline space-x-1 mt-0.5">
-            <span className="text-3xl font-extrabold font-mono text-cyan-300 tracking-tight glow-text-cyan">
-              {currentDepth.toLocaleString()}
-            </span>
-            <span className="text-sm font-mono text-slate-400">METERS</span>
-          </div>
-          {/* Visual Vertical Depth Meter Bar */}
-          <div className="w-full bg-slate-900/80 h-1.5 rounded-full mt-2 overflow-hidden border border-cyan-900/50">
-            <div 
-              className="h-full bg-gradient-to-r from-cyan-400 via-blue-500 to-indigo-600 transition-all duration-150 rounded-full"
-              style={{ width: `${Math.min(100, Math.max(1, (currentDepth / 10994) * 100))}%` }}
+        {/* Main instrument disc */}
+        <div
+          className="absolute inset-3 rounded-full flex items-center justify-center"
+          style={{
+            background: 'radial-gradient(circle at 35% 35%, rgba(6,15,30,0.98) 0%, rgba(1,3,8,1) 100%)',
+            border: `1px solid rgba(0,243,255,0.12)`,
+            boxShadow: `0 0 40px rgba(0,0,0,0.9), inset 0 0 20px rgba(0,0,0,0.8), 0 0 20px ${zoneColor}18`,
+          }}
+        >
+          {/* SVG gauge overlay */}
+          <svg
+            width={size}
+            height={size}
+            viewBox={`0 0 ${size} ${size}`}
+            className="absolute inset-0"
+          >
+            {/* Background arc (full sweep, dark track) */}
+            <path
+              d={describeArc(cx, cy, r, -130, 130)}
+              fill="none"
+              stroke="rgba(255,255,255,0.04)"
+              strokeWidth={strokeW + 1}
+              strokeLinecap="round"
             />
+
+            {/* Active depth arc */}
+            {depthPct > 0 && (
+              <path
+                d={describeArc(cx, cy, r, arcStart, Math.min(130, arcEnd))}
+                fill="none"
+                stroke={zoneColor}
+                strokeWidth={strokeW}
+                strokeLinecap="round"
+                style={{
+                  filter: `drop-shadow(0 0 6px ${zoneColor}80)`,
+                  transition: 'stroke 1s ease',
+                }}
+              />
+            )}
+
+            {/* Tick marks */}
+            {ticks.map((tick, i) => (
+              <line
+                key={i}
+                x1={tick.inner.x}
+                y1={tick.inner.y}
+                x2={tick.outer.x}
+                y2={tick.outer.y}
+                stroke={tick.major ? 'rgba(0,243,255,0.3)' : 'rgba(255,255,255,0.08)'}
+                strokeWidth={tick.major ? 1.5 : 0.8}
+                strokeLinecap="round"
+              />
+            ))}
+
+            {/* Sonar ping ring */}
+            <circle
+              cx={cx}
+              cy={cy}
+              r={r + 10}
+              fill="none"
+              stroke={`${zoneColor}18`}
+              strokeWidth="1"
+              strokeDasharray="3 8"
+            >
+              <animateTransform
+                attributeName="transform"
+                type="rotate"
+                from={`0 ${cx} ${cy}`}
+                to={`360 ${cx} ${cy}`}
+                dur="12s"
+                repeatCount="indefinite"
+              />
+            </circle>
+
+            {/* Depth needle */}
+            {(() => {
+              const needleAngle = arcStart + (depthPct / 100) * 260;
+              const needleTip = polarToCartesian(cx, cy, r - 12, needleAngle);
+              const needleBase1 = polarToCartesian(cx, cy, 10, needleAngle + 90);
+              const needleBase2 = polarToCartesian(cx, cy, 10, needleAngle - 90);
+              return (
+                <polygon
+                  points={`${needleTip.x},${needleTip.y} ${needleBase1.x},${needleBase1.y} ${needleBase2.x},${needleBase2.y}`}
+                  fill={zoneColor}
+                  style={{ filter: `drop-shadow(0 0 4px ${zoneColor})`, transition: 'all 0.3s ease' }}
+                />
+              );
+            })()}
+
+            {/* Center axle */}
+            <circle cx={cx} cy={cy} r={5} fill={zoneColor} opacity={0.8}
+              style={{ filter: `drop-shadow(0 0 6px ${zoneColor})` }} />
+            <circle cx={cx} cy={cy} r={2.5} fill="rgba(1,3,8,1)" />
+          </svg>
+
+          {/* Center content */}
+          <div className="relative z-10 flex flex-col items-center text-center" style={{ marginTop: '10px' }}>
+            {/* Depth readout */}
+            <div
+              className="text-2xl font-bold tabular-nums leading-none"
+              style={{
+                fontFamily: "'JetBrains Mono', monospace",
+                color: zoneColor,
+                textShadow: `0 0 20px ${zoneColor}80`,
+                transition: 'color 1s ease, text-shadow 1s ease',
+              }}
+            >
+              {smoothDepth > 999
+                ? `${(smoothDepth / 1000).toFixed(1)}k`
+                : smoothDepth.toLocaleString()
+              }
+            </div>
+            <div
+              className="text-[8px] tracking-widest mt-0.5"
+              style={{ color: 'rgba(200,220,240,0.4)', fontFamily: "'JetBrains Mono', monospace" }}
+            >
+              METERS
+            </div>
+
+            {/* Zone tag */}
+            <div
+              className="mt-2 text-[7px] tracking-[0.25em] uppercase px-1.5 py-0.5 rounded"
+              style={{
+                color: zoneColor,
+                background: `${zoneColor}12`,
+                border: `1px solid ${zoneColor}25`,
+                fontFamily: "'JetBrains Mono', monospace",
+                textShadow: `0 0 8px ${zoneColor}60`,
+                transition: 'all 1s ease',
+              }}
+            >
+              {currentZone.id}
+            </div>
           </div>
+
         </div>
 
-        {/* Telemetry Metrics Grid */}
-        <div className="grid grid-cols-2 gap-2 text-xs font-mono">
-          
-          {/* Pressure */}
-          <div className="bg-slate-950/60 p-2 rounded-lg border border-slate-800/80">
-            <div className="text-[9px] text-slate-400 flex items-center gap-1">
-              <ShieldAlert className="w-3 h-3 text-cyan-400" />
-              <span>PRESSURE</span>
-            </div>
-            <div className="text-sm font-bold text-slate-200 mt-0.5">
-              {pressureAtm} <span className="text-[10px] font-normal text-slate-400">atm</span>
-            </div>
+        {/* Sub-gauges below the main ring — pressure & temp in tiny inline displays */}
+        <div
+          className="absolute -bottom-8 left-1/2 -translate-x-1/2 flex gap-3 whitespace-nowrap"
+          style={{ opacity: Math.min(1, scrollProgress * 5) }}
+        >
+          <div className="flex flex-col items-center">
+            <span
+              className="text-[7px] tracking-widest uppercase"
+              style={{ color: 'rgba(0,243,255,0.35)', fontFamily: "'JetBrains Mono', monospace" }}
+            >
+              ATM
+            </span>
+            <span
+              className="text-[10px] font-bold tabular-nums"
+              style={{ color: 'rgba(200,220,240,0.7)', fontFamily: "'JetBrains Mono', monospace" }}
+            >
+              {pressureAtm}
+            </span>
           </div>
-
-          {/* Temperature */}
-          <div className="bg-slate-950/60 p-2 rounded-lg border border-slate-800/80">
-            <div className="text-[9px] text-slate-400 flex items-center gap-1">
-              <Thermometer className="w-3 h-3 text-blue-400" />
-              <span>WATER TEMP</span>
-            </div>
-            <div className="text-sm font-bold text-slate-200 mt-0.5">
-              {tempC}°C
-            </div>
+          <div className="w-px bg-white/5" />
+          <div className="flex flex-col items-center">
+            <span
+              className="text-[7px] tracking-widest uppercase"
+              style={{ color: 'rgba(0,243,255,0.35)', fontFamily: "'JetBrains Mono', monospace" }}
+            >
+              °C
+            </span>
+            <span
+              className="text-[10px] font-bold tabular-nums"
+              style={{ color: 'rgba(200,220,240,0.7)', fontFamily: "'JetBrains Mono', monospace" }}
+            >
+              {tempC}
+            </span>
           </div>
-
-          {/* Oxygen */}
-          <div className="bg-slate-950/60 p-2 rounded-lg border border-slate-800/80">
-            <div className="text-[9px] text-slate-400 flex items-center gap-1">
-              <Activity className="w-3 h-3 text-emerald-400" />
-              <span>O2 SAT</span>
-            </div>
-            <div className="text-sm font-bold text-emerald-300 mt-0.5">
-              {oxygenPct}%
-            </div>
-          </div>
-
-          {/* Visibility */}
-          <div className="bg-slate-950/60 p-2 rounded-lg border border-slate-800/80">
-            <div className="text-[9px] text-slate-400 flex items-center gap-1">
-              <Compass className="w-3 h-3 text-purple-400" />
-              <span>VISIBILITY</span>
-            </div>
-            <div className="text-xs font-bold text-purple-300 mt-0.5">
-              {currentDepth < 200 ? '100m Clear' : currentDepth < 1000 ? '15m Faint' : '0m Pitch Black'}
-            </div>
-          </div>
-
         </div>
-
-        {/* Current Zone Tag */}
-        <div className="mt-3 pt-2 border-t border-cyan-900/40 text-[10px] font-mono text-cyan-400/80 flex items-center justify-between">
-          <span>ZONE STATUS</span>
-          <span className="px-1.5 py-0.5 rounded bg-cyan-950 border border-cyan-500/30 text-cyan-300 uppercase">
-            {currentZone.id}
-          </span>
-        </div>
-
       </div>
     </div>
   );

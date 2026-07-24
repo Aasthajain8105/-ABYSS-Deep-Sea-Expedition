@@ -1,176 +1,151 @@
-import React, { useState } from 'react';
-import { Eye, Thermometer, SunDim, Sparkles, Waves, MousePointer, Activity } from 'lucide-react';
+import React, { useState, useEffect, useRef } from 'react';
 import { oceanAudio } from '../utils/soundEngine';
 
+/**
+ * TwilightSection — stripped of floating cards.
+ * The ocean canvas now holds the species. This section provides
+ * an immersive narrative overlay that blends into the environment.
+ * Species data surfaces when the user clicks creatures in the canvas.
+ */
 export default function TwilightSection({ onBioColorChange }) {
-  const [activeSpecies, setActiveSpecies] = useState(0);
+  const [visible, setVisible] = useState(false);
+  const sectionRef = useRef(null);
 
-  const species = [
-    {
-      name: 'Crystal Atolla Jellyfish',
-      depth: '200m - 600m',
-      glow: '#00f3ff',
-      tagline: 'Displays a circular alarm strobe light when threatened',
-      desc: 'The first bioluminescent jellyfish encountered as sunlight dies. Atolla produces a brilliant blue light ring that alerts deep predators to its presence.'
-    },
-    {
-      name: 'Comb Jelly (Ctenophore)',
-      depth: '300m - 800m',
-      glow: '#ff007f',
-      tagline: 'Rainbow diffraction across eight ciliated comb rows',
-      desc: 'Ctenophores scatter ambient ocean light along synchronized beating cilia, creating mesmerising iridescent rainbow pulses.'
-    },
-    {
-      name: 'Deepwater Siphonophore',
-      depth: '400m - 1000m',
-      glow: '#00ff88',
-      tagline: 'Colonial organism growing up to 40 meters long',
-      desc: 'A massive floating colony of specialized zooids connected together, glowing with bioluminescent emerald lures.'
-    }
-  ];
+  useEffect(() => {
+    const obs = new IntersectionObserver(
+      ([entry]) => {
+        if (entry.isIntersecting) {
+          setVisible(true);
+          onBioColorChange?.('#00f3ff');
+          oceanAudio.playBubblePop?.();
+        }
+      },
+      { threshold: 0.25 }
+    );
+    if (sectionRef.current) obs.observe(sectionRef.current);
+    return () => obs.disconnect();
+  }, [onBioColorChange]);
 
   return (
-    <section 
+    <section
       id="twilight"
-      className="relative min-h-screen w-full flex flex-col justify-center items-center px-4 py-24 z-10"
+      ref={sectionRef}
+      className="relative min-h-screen w-full flex flex-col justify-end items-start px-8 md:px-16 pb-24 z-10"
     >
-      <div className="max-w-6xl mx-auto w-full space-y-12">
-        
-        {/* Section Header */}
-        <div className="text-center space-y-4">
-          <div className="inline-flex items-center space-x-2 px-4 py-1.5 rounded-full bg-cyan-950/80 border border-cyan-400/40 text-xs font-mono text-cyan-300 shadow-[0_0_20px_rgba(0,243,255,0.2)]">
-            <Eye className="w-4 h-4 text-cyan-400 animate-pulse" />
-            <span>PHASE 2 • TWILIGHT ZONE (200M — 1,000M DESCENT)</span>
-          </div>
-
-          <h2 className="text-4xl sm:text-7xl font-extrabold text-white font-display uppercase tracking-tight">
-            THE TWILIGHT ZONE
-          </h2>
-
-          <p className="text-slate-200 max-w-2xl mx-auto font-light text-base sm:text-lg">
-            Sunlight slowly fades into deep sapphire shadows. Fish disappear into the depths. Temperature drops rapidly as biological luminescence takes over.
-          </p>
+      {/* Zone label — carved into the seafloor rock, bottom-left */}
+      <div
+        className="max-w-lg transition-all duration-1200 ease-out"
+        style={{
+          opacity: visible ? 1 : 0,
+          transform: visible ? 'translateY(0)' : 'translateY(30px)',
+          transitionDuration: '1.2s',
+        }}
+      >
+        {/* Carved zone badge */}
+        <div
+          className="text-[9px] font-mono tracking-[0.45em] uppercase mb-3 flex items-center gap-2"
+          style={{
+            color: 'rgba(129,140,248,0.7)',
+            textShadow: '0 0 20px rgba(129,140,248,0.5)',
+            fontFamily: "'JetBrains Mono', monospace",
+          }}
+        >
+          <span
+            className="w-1.5 h-1.5 rounded-full animate-pulse"
+            style={{ backgroundColor: '#818cf8', boxShadow: '0 0 10px #818cf8' }}
+          />
+          PHASE 2 — MESOPELAGIC
+          <span style={{ color: 'rgba(129,140,248,0.4)' }}>200M — 1,000M</span>
         </div>
 
-        {/* Phase 2 Environmental Telemetry Cards */}
-        <div className="grid grid-cols-1 sm:grid-cols-3 gap-4 font-mono">
-          
-          <div className="glass-panel p-5 rounded-2xl border border-cyan-500/20 text-left">
-            <div className="text-[10px] text-slate-400 uppercase tracking-widest flex items-center gap-1.5">
-              <SunDim className="w-4 h-4 text-amber-400" /> SOLAR IRRADIANCE
-            </div>
-            <div className="text-2xl font-bold text-slate-100 mt-1">1% FAINT RAYS</div>
-            <div className="text-[10px] text-cyan-400 mt-0.5">LIGHT FADING RAPIDLY</div>
-          </div>
+        {/* Section title — carved glyph style */}
+        <h2
+          className="text-5xl sm:text-7xl font-extrabold leading-[0.9] mb-5"
+          style={{
+            fontFamily: "'Cinzel', serif",
+            color: 'transparent',
+            backgroundImage: 'linear-gradient(135deg, rgba(200,220,255,0.9) 0%, rgba(129,140,248,0.7) 40%, rgba(99,102,241,0.5) 100%)',
+            WebkitBackgroundClip: 'text',
+            backgroundClip: 'text',
+            textShadow: 'none',
+            filter: 'drop-shadow(0 0 30px rgba(129,140,248,0.3))',
+          }}
+        >
+          THE<br />TWILIGHT<br />ZONE
+        </h2>
 
-          <div className="glass-panel p-5 rounded-2xl border border-cyan-500/20 text-left">
-            <div className="text-[10px] text-slate-400 uppercase tracking-widest flex items-center gap-1.5">
-              <Thermometer className="w-4 h-4 text-blue-400" /> AMBIENT TEMPERATURE
-            </div>
-            <div className="text-2xl font-bold text-blue-300 mt-1">4.0°C - 15.0°C</div>
-            <div className="text-[10px] text-slate-400 mt-0.5">THERMOCLINE DROP</div>
-          </div>
+        {/* Narrative — single atmospheric sentence, not a data card */}
+        <p
+          className="text-sm leading-relaxed max-w-sm"
+          style={{
+            color: 'rgba(160,180,210,0.75)',
+            fontFamily: "'JetBrains Mono', monospace",
+            fontSize: '11px',
+            letterSpacing: '0.05em',
+            lineHeight: '1.8',
+          }}
+        >
+          Sunlight fractures into indigo threads. Bioluminescent organisms
+          replace the sun. Click any glowing creature in the water to identify it.
+        </p>
 
-          <div className="glass-panel p-5 rounded-2xl border border-cyan-500/20 text-left">
-            <div className="text-[10px] text-slate-400 uppercase tracking-widest flex items-center gap-1.5">
-              <MousePointer className="w-4 h-4 text-cyan-400" /> MOUSE WATER RIPPLES
-            </div>
-            <div className="text-2xl font-bold text-cyan-300 mt-1">ACTIVE</div>
-            <div className="text-[10px] text-slate-400 mt-0.5">MOVE CURSOR ON SEA</div>
-          </div>
-
+        {/* Creature interaction hint */}
+        <div
+          className="mt-5 flex items-center gap-2 text-[9px] font-mono tracking-widest"
+          style={{
+            color: 'rgba(129,140,248,0.5)',
+            animation: 'pulse 3s ease-in-out infinite',
+          }}
+        >
+          <svg width="14" height="14" viewBox="0 0 14 14" fill="none">
+            <circle cx="7" cy="7" r="5" stroke="rgba(129,140,248,0.4)" strokeWidth="1" />
+            <circle cx="7" cy="7" r="2" fill="rgba(129,140,248,0.6)" />
+          </svg>
+          CLICK CREATURES TO SCAN
         </div>
-
-        {/* Interactive Species Explorer */}
-        <div className="grid grid-cols-1 lg:grid-cols-12 gap-8 items-center pt-4">
-          
-          {/* Left Species Selection Cards */}
-          <div className="lg:col-span-5 space-y-4">
-            <h3 className="text-xs font-mono tracking-widest text-slate-400 uppercase flex items-center gap-1.5">
-              <Activity className="w-4 h-4 text-cyan-400" /> TWILIGHT SPECIES REVEAL
-            </h3>
-
-            {species.map((s, idx) => (
-              <div
-                key={s.name}
-                onClick={() => {
-                  setActiveSpecies(idx);
-                  onBioColorChange(s.glow);
-                  oceanAudio.playBubblePop();
-                }}
-                className={`p-5 rounded-2xl cursor-pointer transition-all border ${
-                  activeSpecies === idx 
-                    ? 'glass-panel-glow border-cyan-400 shadow-[0_0_30px_rgba(0,243,255,0.3)] scale-[1.02]' 
-                    : 'glass-card hover:border-slate-600'
-                }`}
-              >
-                <div className="flex justify-between items-start">
-                  <h4 className="font-bold text-white font-display text-lg">{s.name}</h4>
-                  <span className="text-xs font-mono px-2 py-0.5 rounded bg-slate-950 text-cyan-300 border border-slate-700">
-                    {s.depth}
-                  </span>
-                </div>
-                <p className="text-xs text-slate-300 mt-2 font-light">{s.tagline}</p>
-                
-                {/* Bioluminescent Color Chip */}
-                <div className="flex items-center space-x-2 mt-3 text-[10px] font-mono text-slate-400">
-                  <span>BIOLUMINESCENT SPECTRA:</span>
-                  <span 
-                    className="w-3.5 h-3.5 rounded-full inline-block shadow-lg"
-                    style={{ backgroundColor: s.glow, boxShadow: `0 0 12px ${s.glow}` }}
-                  />
-                  <span className="text-slate-200 uppercase font-semibold">{s.glow}</span>
-                </div>
-              </div>
-            ))}
-          </div>
-
-          {/* Right Species Detailed Showcase Card */}
-          <div className="lg:col-span-7 glass-panel p-8 rounded-3xl border border-cyan-500/30 shadow-2xl space-y-6 relative overflow-hidden">
-            <div 
-              className="absolute top-0 right-0 w-72 h-72 rounded-full blur-[110px] opacity-35 pointer-events-none transition-all duration-500"
-              style={{ backgroundColor: species[activeSpecies].glow }}
-            />
-
-            <div className="flex items-center justify-between">
-              <span className="text-xs font-mono text-cyan-300 flex items-center gap-1.5 font-bold">
-                <Sparkles className="w-4 h-4" /> FIRST JELLYFISH REVEALED
-              </span>
-              <span className="text-xs font-mono text-slate-400">
-                MESOPELAGIC SPECIES #01
-              </span>
-            </div>
-
-            <div className="space-y-3">
-              <h3 className="text-3xl font-extrabold text-white font-display">
-                {species[activeSpecies].name}
-              </h3>
-              <p className="text-sm text-slate-200 leading-relaxed font-light">
-                {species[activeSpecies].desc}
-              </p>
-            </div>
-
-            {/* Light Shift Trigger */}
-            <div className="pt-4 border-t border-slate-800/80 flex items-center justify-between">
-              <div className="text-xs font-mono text-slate-400">
-                MATCH OCEAN CANVAS BIOLUMINESCENCE
-              </div>
-              <button
-                onClick={() => {
-                  onBioColorChange(species[activeSpecies].glow);
-                  oceanAudio.playSonarPing();
-                }}
-                className="px-5 py-2.5 rounded-xl text-xs font-mono font-semibold bg-cyan-500/20 text-cyan-300 border border-cyan-400/50 hover:bg-cyan-500/30 transition-all shadow-[0_0_15px_rgba(0,243,255,0.2)]"
-              >
-                APPLY JELLYFISH GLOW
-              </button>
-            </div>
-
-          </div>
-
-        </div>
-
       </div>
+
+      {/* Environmental data — engraved into the rock, bottom-right */}
+      <div
+        className="absolute bottom-24 right-8 md:right-16 flex flex-col items-end gap-2 transition-all duration-1000"
+        style={{
+          opacity: visible ? 0.6 : 0,
+          transitionDelay: '0.4s',
+          transitionDuration: '1.4s',
+        }}
+      >
+        {[
+          ['SOLAR IRRADIANCE', '1%', 'FAINT'],
+          ['TEMPERATURE', '4°C–15°C', 'THERMOCLINE'],
+          ['VISIBILITY', '15m', 'FADING'],
+        ].map(([label, value, sub]) => (
+          <div key={label} className="flex flex-col items-end">
+            <span
+              className="text-[7px] tracking-[0.35em] uppercase"
+              style={{ color: 'rgba(129,140,248,0.35)', fontFamily: "'JetBrains Mono', monospace" }}
+            >
+              {label}
+            </span>
+            <span
+              className="text-sm font-bold"
+              style={{
+                color: 'rgba(180,200,240,0.7)',
+                fontFamily: "'JetBrains Mono', monospace",
+                textShadow: '0 0 15px rgba(129,140,248,0.3)',
+              }}
+            >
+              {value}
+            </span>
+            <span
+              className="text-[7px] tracking-widest"
+              style={{ color: 'rgba(129,140,248,0.25)', fontFamily: "'JetBrains Mono', monospace" }}
+            >
+              {sub}
+            </span>
+          </div>
+        ))}
+      </div>
+
     </section>
   );
 }
