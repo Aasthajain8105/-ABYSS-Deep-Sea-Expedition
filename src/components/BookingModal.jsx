@@ -67,15 +67,33 @@ export default function BookingModal({ isOpen, onClose, initialSub, initialDest 
                         setSelectedSub(sub);
                         oceanAudio.playBubblePop();
                       }}
-                      className={`p-3 rounded-2xl cursor-pointer border transition-all ${
+                      className={`rounded-2xl cursor-pointer border transition-all overflow-hidden flex flex-col ${
                         selectedSub.id === sub.id
-                          ? 'bg-cyan-500/20 border-cyan-400 text-cyan-300 shadow-[0_0_15px_rgba(0,243,255,0.2)]'
-                          : 'bg-slate-900/50 border-slate-800 text-slate-400 hover:border-slate-700'
+                          ? 'bg-cyan-500/20 border-cyan-400 shadow-[0_0_15px_rgba(0,243,255,0.2)]'
+                          : 'bg-slate-900/50 border-slate-800 hover:border-slate-700'
                       }`}
                     >
-                      <div className="font-bold font-display text-sm text-white">{sub.name}</div>
-                      <div className="text-[10px] text-cyan-400/80">{sub.maxDepth}</div>
-                      <div className="text-[10px] text-slate-400 mt-1">{sub.pricePerSeat} / seat</div>
+                      <div className="h-28 w-full bg-slate-950 relative overflow-hidden">
+                        {sub.image && (
+                          <img src={sub.image} alt={sub.name} className="w-full h-full object-cover opacity-80 mix-blend-screen group-hover:opacity-100 transition-opacity" />
+                        )}
+                        <div className="absolute inset-0 bg-gradient-to-t from-slate-900 to-transparent"></div>
+                      </div>
+                      <div className="p-3 flex-1 flex flex-col justify-between">
+                        <div>
+                          <div className={`font-bold font-display text-sm ${selectedSub.id === sub.id ? 'text-white' : 'text-slate-200'}`}>{sub.name}</div>
+                          <div className={`text-[10px] mt-0.5 ${selectedSub.id === sub.id ? 'text-cyan-300' : 'text-cyan-400/80'}`}>{sub.type}</div>
+                        </div>
+                        <div className="mt-2 space-y-1">
+                          <div className={`text-[10px] flex justify-between ${selectedSub.id === sub.id ? 'text-slate-300' : 'text-slate-400'}`}>
+                            <span>Depth: {sub.maxDepth}</span>
+                            <span>{sub.capacity.split(' ')[0]} Guests</span>
+                          </div>
+                          <div className={`text-[10px] font-bold ${selectedSub.id === sub.id ? 'text-cyan-300' : 'text-slate-400'}`}>
+                            {sub.pricePerSeat} / seat
+                          </div>
+                        </div>
+                      </div>
                     </div>
                   ))}
                 </div>

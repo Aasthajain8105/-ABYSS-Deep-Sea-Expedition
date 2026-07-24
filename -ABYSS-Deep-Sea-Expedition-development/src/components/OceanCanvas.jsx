@@ -247,55 +247,14 @@ export default function OceanCanvas({ depthRatio = 0, bioColor = '#8ce8ff', onCr
       ctx.restore();
     }
 
-    // ─── Boid flocking update ──────────────────────────────────────────────
-    function updateBoids(boids, maxSpeed, maxForce, separationDist, cohesionDist, targetY, targetYStrength) {
+    // ─── Lightweight wave-motion fish school update (O(N) vs O(N^2)) ──────
+    function updateBoids(boids, maxSpeed, targetY, targetYStrength) {
       for (let i = 0; i < boids.length; i++) {
         const b = boids[i];
-        let sepX = 0, sepY = 0, sepCount = 0;
-        let cohX = 0, cohY = 0, cohCount = 0;
-        let alignVX = 0, alignVY = 0, alignCount = 0;
+        b.vx += 0.03 + Math.sin(state.time + i * 0.4) * 0.01;
+        b.vy += (targetY - b.y) * targetYStrength + Math.cos(state.time * 1.2 + i * 0.3) * 0.04;
 
-        for (let j = 0; j < boids.length; j++) {
-          if (i === j) continue;
-          const dx = b.x - boids[j].x;
-          const dy = b.y - boids[j].y;
-          const d = Math.sqrt(dx * dx + dy * dy);
-
-          if (d < separationDist && d > 0) {
-            sepX += dx / d;
-            sepY += dy / d;
-            sepCount++;
-          }
-          if (d < cohesionDist) {
-            cohX += boids[j].x;
-            cohY += boids[j].y;
-            alignVX += boids[j].vx;
-            alignVY += boids[j].vy;
-            cohCount++;
-            alignCount++;
-          }
-        }
-
-        if (sepCount > 0) {
-          b.vx += (sepX / sepCount) * maxForce * 2;
-          b.vy += (sepY / sepCount) * maxForce * 2;
-        }
-        if (cohCount > 0) {
-          b.vx += ((cohX / cohCount - b.x) / cohesionDist) * maxForce;
-          b.vy += ((cohY / cohCount - b.y) / cohesionDist) * maxForce;
-        }
-        if (alignCount > 0) {
-          b.vx += (alignVX / alignCount - b.vx) * maxForce * 0.5;
-          b.vy += (alignVY / alignCount - b.vy) * maxForce * 0.5;
-        }
-
-        // Drift right overall
-        b.vx += 0.03;
-        // Gentle return to target depth band
-        b.vy += (targetY - b.y) * targetYStrength;
-
-        // Clamp speed
-        const speed = Math.sqrt(b.vx * b.vx + b.vy * b.vy);
+        const speed = Math.hypot(b.vx, b.vy);
         if (speed > maxSpeed) {
           b.vx = (b.vx / speed) * maxSpeed;
           b.vy = (b.vy / speed) * maxSpeed;
@@ -360,12 +319,12 @@ export default function OceanCanvas({ depthRatio = 0, bioColor = '#8ce8ff', onCr
         // Caustic light grid on ocean floor ripple
         if (dRatio < 0.1) {
           ctx.globalAlpha = (1 - dRatio / 0.1) * 0.04;
-          for (let cx = 0; cx < width; cx += 60) {
-            for (let cy = 0; cy < height; cy += 60) {
+          for (let cx = 0; cx < width; cx += 120) {
+            for (let cy = 0; cy < height; cy += 120) {
               const ripple = Math.sin(t * 2 + cx * 0.05) * Math.cos(t * 1.5 + cy * 0.04);
               if (ripple > 0.3) {
                 ctx.beginPath();
-                ctx.arc(cx + ripple * 10, cy + ripple * 8, 15 * ripple, 0, Math.PI * 2);
+                ctx.arc(cx + ripple * 10, cy + ripple * 8, 25 * ripple, 0, Math.PI * 2);
                 ctx.fillStyle = 'rgba(200, 240, 255, 0.6)';
                 ctx.fill();
               }
@@ -405,7 +364,7 @@ export default function OceanCanvas({ depthRatio = 0, bioColor = '#8ce8ff', onCr
         const fadeIn = Math.min(1, (0.22 - dRatio) / 0.1);
 
         // Sardine school boids
-        updateBoids(sardineSchool, 1.4, 0.04, 30, 100, height * 0.35, 0.002);
+        updateBoids(sardineSchool, 1.4, height * 0.35, 0.002);
         ctx.globalAlpha = 0.28 * fadeIn;
         sardineSchool.forEach(f => {
           const angle = Math.atan2(f.vy, f.vx);
@@ -548,7 +507,7 @@ export default function OceanCanvas({ depthRatio = 0, bioColor = '#8ce8ff', onCr
         const fadeIn = Math.min(1, Math.min((dRatio - 0.12) / 0.08, (0.52 - dRatio) / 0.06));
 
         // Hatchetfish school (smaller, deeper)
-        updateBoids(hatchetSchool, 1.0, 0.035, 20, 70, height * 0.55, 0.003);
+        updateBoids(hatchetSchool, 1.0, height * 0.55, 0.003);
         ctx.globalAlpha = 0.22 * fadeIn;
         hatchetSchool.forEach(f => {
           const angle = Math.atan2(f.vy, f.vx);

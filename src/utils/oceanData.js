@@ -90,7 +90,8 @@ export const SUBMARINES = [
       { id: 'viewport', name: 'Sapphire Crystal Dome', x: 68, y: 48, desc: 'Optical-grade synthetic sapphire with zero distortion under deep pressure.' },
       { id: 'thrusters', name: 'Silent Bio-Mag Thrusters', x: 20, y: 65, desc: 'Zero-vibration electromagnetic propulsion that does not disturb marine life.' },
       { id: 'lights', name: '120,000 Lumen LED Matrix', x: 80, y: 60, desc: 'Custom 450nm wavelength illuminators that reveal hidden ocean colors.' }
-    ]
+    ],
+    image: '/src/assets/nautilus_x.png'
   },
   {
     id: 'titan-hadal',
@@ -115,7 +116,8 @@ export const SUBMARINES = [
       { id: 'viewport', name: 'Quartz Biconical Lens', x: 75, y: 42, desc: 'Calculated index of refraction matched to saltwater at 1,000 bar pressure.' },
       { id: 'thrusters', name: 'High-Torque Vector Engines', x: 18, y: 70, desc: 'Vectoring propulsion allowing precise maneuverability near abyssal walls.' },
       { id: 'lights', name: 'Hydrothermal Thermal Scanner', x: 82, y: 55, desc: 'Infrared & UV multispectral camera to map black smoker temperatures.' }
-    ]
+    ],
+    image: '/src/assets/titan_hadal.png'
   },
   {
     id: 'abyssal-voyager',
@@ -140,7 +142,8 @@ export const SUBMARINES = [
       { id: 'viewport', name: 'Full-Length Viewing Bay', x: 70, y: 50, desc: 'Allows all 8 guests front-row views of deep-sea vertical migrations.' },
       { id: 'thrusters', name: 'Dual Jet Hydro-Drives', x: 15, y: 60, desc: 'Ultra-smooth waterjet propulsion for cruising along coral walls.' },
       { id: 'lights', name: 'Ambient Mood & Bio Lights', x: 85, y: 45, desc: 'Dynamic internal ambient lighting synced to external water colors.' }
-    ]
+    ],
+    image: '/src/assets/abyssal_odyssey.png'
   }
 ];
 

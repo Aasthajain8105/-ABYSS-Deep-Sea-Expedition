@@ -1,0 +1,48 @@
+[33mcommit 349d802c5dd2461ac9c0fdeeccf39f14e0a19edb[m[33m ([m[1;36mHEAD[m[33m -> [m[1;32manusha-feature[m[33m, [m[1;32mmain[m[33m)[m
+Author: anusha0x <prasadanushaanu@gmail.com>
+Date:   Fri Jul 24 16:10:41 2026 +0530
+
+    Initial commit
+
+ -ABYSS-Deep-Sea-Expedition-development/.gitignore  |    1 [32m+[m
+ .../dist/assets/index-Csm7nh4Y.js                  |  318 [32m+++[m
+ .../dist/assets/index-dted-Q9w.css                 |    1 [32m+[m
+ .../dist/index.html                                |   20 [32m+[m
+ -ABYSS-Deep-Sea-Expedition-development/index.html  |   19 [32m+[m
+ .../package-lock.json                              | 2814 [32m++++++++++++++++++++[m
+ .../package.json                                   |   33 [32m+[m
+ .../postcss.config.js                              |    6 [32m+[m
+ .../public/titanic.png                             |  Bin [31m0[m -> [32m838096[m bytes
+ -ABYSS-Deep-Sea-Expedition-development/src/App.jsx |  271 [32m++[m
+ .../src/components/AbyssSection.jsx                |  139 [32m+[m
+ .../src/components/BioluminescentLab.jsx           |  321 [32m+++[m
+ .../src/components/BookingModal.jsx                |  222 [32m++[m
+ .../src/components/CreatureSVG.jsx                 |  610 [32m+++++[m
+ .../src/components/CreatureTooltip.jsx             |  175 [32m++[m
+ .../src/components/CursorOrb.jsx                   |  108 [32m+[m
+ .../src/components/DepthHUD.jsx                    |  269 [32m++[m
+ .../src/components/DepthVignette.jsx               |  114 [32m+[m
+ .../src/components/EasterEggModal.jsx              |   60 [32m+[m
+ .../src/components/ExpeditionExplorer.jsx          |  231 [32m++[m
+ .../src/components/HeroSection.jsx                 |  116 [32m+[m
+ .../src/components/LaserScanner.jsx                |  215 [32m++[m
+ .../src/components/LeviathanScanner.jsx            |  279 [32m++[m
+ .../src/components/MidnightSection.jsx             |  221 [32m++[m
+ .../src/components/Navbar.jsx                      |  256 [32m++[m
+ .../src/components/OceanAIAssistant.jsx            |  183 [32m++[m
+ .../src/components/OceanCanvas.jsx                 | 1086 [32m++++++++[m
+ .../src/components/OceanDashboard.jsx              |  201 [32m++[m
+ .../src/components/OceanDepthScroll.jsx            |  351 [32m+++[m
+ .../src/components/SubmarineInspector.jsx          |  230 [32m++[m
+ .../src/components/SubmarinesPage.jsx              |  579 [32m++++[m
+ .../src/components/TestimonialsSection.jsx         |   71 [32m+[m
+ .../src/components/TitanicLandmark.jsx             |  258 [32m++[m
+ .../src/components/TwilightSection.jsx             |  151 [32m++[m
+ .../src/index.css                                  |  227 [32m++[m
+ .../src/main.jsx                                   |   10 [32m+[m
+ .../src/utils/oceanData.js                         |  230 [32m++[m
+ .../src/utils/soundEngine.js                       |  176 [32m++[m
+ .../tailwind.config.js                             |   53 [32m+[m
+ .../vite.config.js                                 |   10 [32m+[m
+ package-lock.json                                  |    6 [32m+[m
+ 41 files changed, 10641 insertions(+)

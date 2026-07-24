@@ -106,7 +106,8 @@ function getBgGradient(depthM) {
 }
 
 // ─── Individual creature element ─────────────────────────────────────────────
-function CreatureElement({ creature, pxPerM, onCreatureClick }) {
+// ─── Individual creature element (Memoized for zero re-render overhead) ──────
+const CreatureElement = React.memo(function CreatureElement({ creature, pxPerM, onCreatureClick }) {
   const [hovered, setHovered] = useState(false);
   const yPos = creature.depthM * pxPerM;
   const isStationary = creature.stationary;
@@ -122,6 +123,7 @@ function CreatureElement({ creature, pxPerM, onCreatureClick }) {
         top: `${yPos}px`,
         transform: 'translateX(-50%)',
         zIndex: 5,
+        willChange: 'transform',
         animation: isStationary ? 'none' : `${animName} ${6 + (creature.id.length % 4)}s ease-in-out infinite ${(creature.depthM % 5) * 0.4}s`,
       }}
       onClick={(e) => {
@@ -151,7 +153,7 @@ function CreatureElement({ creature, pxPerM, onCreatureClick }) {
         />
       </div>
 
-      {/* Name label — always visible, like the reference */}
+      {/* Name label */}
       <div
         className="mt-1 text-center transition-all duration-200"
         style={{
@@ -184,7 +186,7 @@ function CreatureElement({ creature, pxPerM, onCreatureClick }) {
       )}
     </div>
   );
-}
+});
 
 // ─── Zone transition markers ──────────────────────────────────────────────────
 const ZONE_MARKERS = [
@@ -195,8 +197,11 @@ const ZONE_MARKERS = [
 ];
 
 // ─── Main Component ───────────────────────────────────────────────────────────
-export default function OceanDepthScroll({ onCreatureClick, onTitanicClick, depthRatio, currentDepth }) {
+export default function OceanDepthScroll({ onCreatureClick, onTitanicClick, depthRatio, currentDepth = 0 }) {
   const containerRef = useRef(null);
+
+  // Virtualized filtering: Only render creatures near the current depth window (+/- 400m)
+  const visibleCreatures = CREATURES.filter((c) => Math.abs(c.depthM - currentDepth) <= 450);
 
   return (
     <div
@@ -267,8 +272,8 @@ export default function OceanDepthScroll({ onCreatureClick, onTitanicClick, dept
         </div>
       ))}
 
-      {/* ── Creatures ───────────────────────────────────────────────────── */}
-      {CREATURES.map(creature => (
+      {/* ── Virtualized Creatures (only 5-10 rendered at a time instead of 96) ── */}
+      {visibleCreatures.map(creature => (
         <CreatureElement
           key={creature.id}
           creature={creature}

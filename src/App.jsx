@@ -150,23 +150,23 @@ export default function App() {
           onBioColorChange={setBioColor} 
         />
 
-        {/* Phase 3: Midnight Zone (1,000m - 4,000m) */}
+        {/* Phase 3: Bioluminescent Organism Synthesis Lab */}
+        <BioluminescentLab 
+          onReleaseToOcean={setBioColor} 
+        />
+
+        {/* Phase 4: Midnight Zone (1,000m - 4,000m) */}
         <MidnightSection 
           onOpenBooking={handleOpenBooking} 
         />
 
-        {/* Phase 4 & 5: Abyss & Hadal Challenger Deep (4,000m - 10,994m) */}
+        {/* Phase 5: Abyss & Hadal Challenger Deep (4,000m - 10,994m) */}
         <AbyssSection 
           onOpenBooking={handleOpenBooking} 
           onUnlockAchievement={() => setAchievementOpen(true)} 
         />
 
-        {/* Phase 6: Bioluminescent Organism Synthesis Lab */}
-        <BioluminescentLab 
-          onReleaseToOcean={setBioColor} 
-        />
-
-        {/* Phase 7: Ocean Intelligence Telemetry Stream */}
+        {/* Phase 6: Ocean Intelligence Telemetry Stream */}
         <OceanDashboard 
           currentDepth={currentDepth} 
         />

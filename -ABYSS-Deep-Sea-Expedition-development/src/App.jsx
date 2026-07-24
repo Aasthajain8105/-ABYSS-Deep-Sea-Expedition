@@ -80,28 +80,43 @@ export default function App() {
     gsap.ticker.add(updateLenis);
     gsap.ticker.lagSmoothing(0);
 
+    let ticking = false;
+    let lastDepth = -1;
+    let lastRatio = -1;
+
     const handleScroll = () => {
-      const scrollY = window.scrollY;
-      const maxScroll = document.documentElement.scrollHeight - window.innerHeight;
-      const ratio = Math.max(0, Math.min(1, scrollY / (maxScroll || 1)));
+      if (!ticking) {
+        requestAnimationFrame(() => {
+          const scrollY = window.scrollY;
+          const maxScroll = document.documentElement.scrollHeight - window.innerHeight;
+          const ratio = Math.max(0, Math.min(1, scrollY / (maxScroll || 1)));
 
-      setDepthRatio(ratio);
+          const heroHeight = window.innerHeight;
+          const oceanScrollStart = heroHeight;
+          const oceanScrollLength = 11000 * 6;
 
-      // Hero section is ~100vh. OceanDepthScroll starts after that.
-      // OceanDepthScroll is 66,000px. Total scroll includes hero + lab + etc.
-      const heroHeight = window.innerHeight;
-      const oceanScrollStart = heroHeight;
-      const oceanScrollLength = 11000 * 6; // 66,000px
+          const depthScrollY = Math.max(0, scrollY - oceanScrollStart);
+          const depth = Math.round(Math.min(11000, (depthScrollY / oceanScrollLength) * 11000));
 
-      const depthScrollY = Math.max(0, scrollY - oceanScrollStart);
-      const depth = Math.round(Math.min(11000, (depthScrollY / oceanScrollLength) * 11000));
-      setCurrentDepth(depth);
+          if (Math.abs(depth - lastDepth) >= 1) {
+            setCurrentDepth(depth);
+            lastDepth = depth;
+          }
 
-      // Subtle camera sway without horizontal shifting
-      const sway = Math.sin(scrollY * 0.0012) * 0.35;
-      setCameraRotation(sway);
+          if (Math.abs(ratio - lastRatio) >= 0.001) {
+            setDepthRatio(ratio);
+            lastRatio = ratio;
 
-      oceanAudio.updateDepthAcoustics?.(ratio);
+            const sway = Math.sin(scrollY * 0.0012) * 0.35;
+            setCameraRotation(sway);
+
+            oceanAudio.updateDepthAcoustics?.(ratio);
+          }
+
+          ticking = false;
+        });
+        ticking = true;
+      }
     };
 
     window.addEventListener('scroll', handleScroll, { passive: true });
@@ -260,6 +275,13 @@ export default function App() {
           onOpenBooking={() => handleOpenBooking()}
         />
 
+        {/* ─── CREATE YOUR OWN JELLYFISH (BIOLUMINESCENT LAB) ───────────── */}
+        <section id="biolab">
+          <BioluminescentLab
+            onReleaseToOcean={setBioColor}
+          />
+        </section>
+
         {/* ─── THE OCEAN — 66,000px continuous depth scroll ────────────── */}
         <OceanDepthScroll
           depthRatio={depthRatio}
@@ -273,13 +295,6 @@ export default function App() {
             setCreaturePosition({ x: window.innerWidth / 2, y: window.innerHeight / 2 });
           }}
         />
-
-        {/* ─── CREATE YOUR OWN JELLYFISH (PRESERVED) ───────────────────── */}
-        <section id="biolab">
-          <BioluminescentLab
-            onReleaseToOcean={setBioColor}
-          />
-        </section>
 
         {/* ─── Ocean Intelligence ───────────────────────────────────────── */}
         <OceanDashboard

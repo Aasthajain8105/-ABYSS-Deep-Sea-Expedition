@@ -58,6 +58,13 @@ export default function Navbar({ currentZone, onOpenBooking, currentDepth }) {
           </button>
           <span className="text-slate-700">/</span>
           <button 
+            onClick={() => scrollToSection('biolab')} 
+            className="px-3 py-1.5 rounded-lg hover:bg-cyan-500/10 hover:text-cyan-300 transition-colors text-cyan-400 font-semibold"
+          >
+            Bio Lab
+          </button>
+          <span className="text-slate-700">/</span>
+          <button 
             onClick={() => scrollToSection('midnight')} 
             className="px-3 py-1.5 rounded-lg hover:bg-cyan-500/10 hover:text-cyan-300 transition-colors"
           >
@@ -72,7 +79,7 @@ export default function Navbar({ currentZone, onOpenBooking, currentDepth }) {
           </button>
           <span className="text-slate-700">/</span>
           <button 
-            onClick={() => scrollToSection('hadal')} 
+            onClick={() => scrollToSection('dashboard')} 
             className="px-3 py-1.5 rounded-lg hover:bg-cyan-500/10 hover:text-cyan-300 transition-colors"
           >
             11,000m Hadal
@@ -95,8 +102,8 @@ export default function Navbar({ currentZone, onOpenBooking, currentDepth }) {
             {isAudioActive ? (
               <>
                 <Volume2 className="w-4 h-4 text-cyan-400 animate-pulse" />
-                <div className="flex items-center space-x-0.5 h-3">
-                  <span className="w-0.5 h-full bg-cyan-400 animate-bounce" style={{ animationDelay: '0.1s' }}></span>
+                <div className="flex items-end space-x-0.5 h-3.5 mb-0.5">
+                  <span className="w-0.5 h-3 bg-cyan-400 animate-bounce" style={{ animationDelay: '0.1s' }}></span>
                   <span className="w-0.5 h-2 bg-cyan-400 animate-bounce" style={{ animationDelay: '0.3s' }}></span>
                   <span className="w-0.5 h-3.5 bg-cyan-400 animate-bounce" style={{ animationDelay: '0.2s' }}></span>
                 </div>

@@ -33,7 +33,7 @@ export default function MidnightSection({ onOpenBooking }) {
         <div className="text-center space-y-4">
           <div className="inline-flex items-center space-x-2 px-4 py-1.5 rounded-full bg-cyan-950/80 border border-cyan-400/40 text-xs font-mono text-cyan-300 shadow-[0_0_25px_rgba(0,243,255,0.25)]">
             <Cpu className="w-4 h-4 text-cyan-400 animate-pulse" />
-            <span>PHASE 3 • MIDNIGHT ZONE (1,000M — 4,000M DESCENT)</span>
+            <span>PHASE 4 • MIDNIGHT ZONE (1,000M — 4,000M DESCENT)</span>
           </div>
           
           <h2 className="text-4xl sm:text-7xl font-extrabold text-white font-display uppercase tracking-tight">
