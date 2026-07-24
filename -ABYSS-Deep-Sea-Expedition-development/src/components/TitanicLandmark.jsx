@@ -196,9 +196,26 @@ export default function TitanicLandmark({ onClick }) {
         </svg>
       </div>
 
+      {/* Volumetric Submarine Searchlight Beam Overlay */}
+      <div
+        className="absolute inset-0 pointer-events-none z-10 opacity-75"
+        style={{
+          background: 'radial-gradient(ellipse 60% 80% at 50% 40%, rgba(251,191,36,0.08) 0%, rgba(180,100,30,0.03) 50%, transparent 100%)',
+        }}
+      />
+
+      {/* Atmospheric Rusticle Fog Overlay */}
+      <div
+        className="absolute inset-x-0 bottom-12 h-32 pointer-events-none z-10"
+        style={{
+          background: 'linear-gradient(180deg, transparent 0%, rgba(60,35,15,0.2) 60%, rgba(30,18,8,0.4) 100%)',
+          filter: 'blur(8px)',
+        }}
+      />
+
       {/* Inscription — etched into the water, not a card */}
       <div
-        className="absolute top-2 left-1/2 -translate-x-1/2 flex flex-col items-center gap-1.5 w-full"
+        className="absolute top-2 left-1/2 -translate-x-1/2 flex flex-col items-center gap-1.5 w-full z-20"
         style={{ pointerEvents: 'none' }}
       >
         {/* Top glow */}
@@ -212,30 +229,44 @@ export default function TitanicLandmark({ onClick }) {
             fontFamily: "'JetBrains Mono', monospace",
           }}
         >
-          DEPTH 3,784 METERS
+          HISTORIC LANDMARK • DEPTH 3,784 METERS
         </div>
         <div
-          className="text-sm font-bold tracking-[0.2em] uppercase"
+          className="text-base sm:text-lg font-bold tracking-[0.2em] uppercase"
           style={{
             fontFamily: "'Cinzel', serif",
             color: 'transparent',
-            backgroundImage: 'linear-gradient(135deg, rgba(220,160,60,0.8) 0%, rgba(200,130,40,0.6) 50%, rgba(180,100,30,0.5) 100%)',
+            backgroundImage: 'linear-gradient(135deg, rgba(245,158,11,0.9) 0%, rgba(217,119,6,0.8) 50%, rgba(180,83,9,0.7) 100%)',
             WebkitBackgroundClip: 'text',
             backgroundClip: 'text',
             textShadow: 'none',
-            filter: 'drop-shadow(0 0 12px rgba(200,120,40,0.35))',
+            filter: 'drop-shadow(0 0 16px rgba(245,158,11,0.4))',
           }}
         >
-          R.M.S. TITANIC
+          R.M.S. TITANIC WRECK SITE
         </div>
+
+        {/* Educational Fact Badges */}
+        <div className="flex flex-wrap items-center justify-center gap-2 mt-1">
+          <span className="text-[8px] font-mono px-2.5 py-0.5 rounded-full bg-amber-950/60 border border-amber-500/30 text-amber-200">
+            SANK: APRIL 15, 1912
+          </span>
+          <span className="text-[8px] font-mono px-2.5 py-0.5 rounded-full bg-amber-950/60 border border-amber-500/30 text-amber-200">
+            DISCOVERED: 1985 (BALLARD)
+          </span>
+          <span className="text-[8px] font-mono px-2.5 py-0.5 rounded-full bg-amber-950/60 border border-amber-500/30 text-amber-200">
+            PRESSURE: 380 ATM (5,500 PSI)
+          </span>
+        </div>
+
         <div
-          className="text-[8px] font-mono tracking-[0.3em]"
+          className="text-[8px] font-mono tracking-[0.3em] mt-1"
           style={{
-            color: 'rgba(160,100,40,0.45)',
+            color: 'rgba(245,158,11,0.6)',
             fontFamily: "'JetBrains Mono', monospace",
           }}
         >
-          APRIL 15, 1912 · NORTH ATLANTIC · CLICK TO REVEAL
+          CLICK WRECK SILHOUETTE FOR COMPLETE HISTORICAL DEEP SCAN
         </div>
         <div className="w-64 h-px" style={{ background: 'linear-gradient(90deg, transparent, rgba(180,100,30,0.4), transparent)' }} />
       </div>

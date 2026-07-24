@@ -322,29 +322,32 @@ export default function OceanCanvas({ depthRatio = 0, bioColor = '#8ce8ff', onCr
       const dRatio = depthRatioRef.current;
       const curBio = bioColorRef.current;
 
-      // ── 1. OCEAN GRADIENT ────────────────────────────────────────────────
-      const grad = ctx.createLinearGradient(0, 0, 0, height);
-      if (dRatio < 0.08) {
-        grad.addColorStop(0, '#062535');
-        grad.addColorStop(0.4, '#031a28');
-        grad.addColorStop(1, '#010f1c');
-      } else if (dRatio < 0.18) {
-        grad.addColorStop(0, '#042238');
-        grad.addColorStop(0.5, '#021a2c');
-        grad.addColorStop(1, '#010c17');
-      } else if (dRatio < 0.45) {
-        grad.addColorStop(0, '#030d1f');
-        grad.addColorStop(0.6, '#020810');
-        grad.addColorStop(1, '#01040a');
-      } else if (dRatio < 0.72) {
-        grad.addColorStop(0, '#020609');
-        grad.addColorStop(0.6, '#010306');
-        grad.addColorStop(1, '#000103');
-      } else {
-        grad.addColorStop(0, '#010204');
-        grad.addColorStop(0.6, '#000102');
-        grad.addColorStop(1, '#000001');
+      // ── 1. CONTINUOUS OCEAN GRADIENT (Smooth 5-Zone Interpolation) ─────────
+      const stops = [
+        { r: 0.00, top: [10, 88, 128], mid: [5, 56, 88], bot: [2, 36, 64] },   // Surface: Turquoise blue
+        { r: 0.18, top: [4, 28, 56],  mid: [3, 20, 40], bot: [2, 13, 28] },   // Twilight: Deep blue
+        { r: 0.45, top: [2, 10, 22],  mid: [1, 6, 16],  bot: [1, 4, 10] },    // Midnight: Navy
+        { r: 0.72, top: [1, 4, 9],    mid: [1, 3, 6],   bot: [0, 1, 3] },     // Abyss: Blue-black
+        { r: 1.00, top: [0, 1, 3],    mid: [0, 0, 1],   bot: [0, 0, 0] },     // Hadal: Almost black
+      ];
+
+      let s1 = stops[0], s2 = stops[stops.length - 1], localFactor = 0;
+      for (let i = 0; i < stops.length - 1; i++) {
+        if (dRatio >= stops[i].r && dRatio <= stops[i + 1].r) {
+          s1 = stops[i];
+          s2 = stops[i + 1];
+          localFactor = (dRatio - s1.r) / (s2.r - s1.r);
+          break;
+        }
       }
+
+      const lerpVal = (a, b, f) => Math.round(a + (b - a) * f);
+      const lerpC = (c1, c2, f) => `rgb(${lerpVal(c1[0], c2[0], f)}, ${lerpVal(c1[1], c2[1], f)}, ${lerpVal(c1[2], c2[2], f)})`;
+
+      const grad = ctx.createLinearGradient(0, 0, 0, height);
+      grad.addColorStop(0, lerpC(s1.top, s2.top, localFactor));
+      grad.addColorStop(0.5, lerpC(s1.mid, s2.mid, localFactor));
+      grad.addColorStop(1, lerpC(s1.bot, s2.bot, localFactor));
       ctx.fillStyle = grad;
       ctx.fillRect(0, 0, width, height);
 
@@ -1058,6 +1061,24 @@ export default function OceanCanvas({ depthRatio = 0, bioColor = '#8ce8ff', onCr
           ctx.arc(b.x, b.y, b.radius, 0, Math.PI * 2);
           ctx.stroke();
         });
+      }
+
+      // ── 6. HYDROTHERMAL VENT SMOKE PLUMES (Abyss & Hadal) ────────────────
+      if (dRatio > 0.65) {
+        ctx.save();
+        const ventAlpha = Math.min(0.6, (dRatio - 0.65) * 2);
+        for (let v = 0; v < 18; v++) {
+          const vx = (width * 0.88) + Math.sin(t * 1.5 + v) * (v * 2.2);
+          const vy = height - (v * 16) - ((t * 45 + v * 20) % 300);
+          const vSize = 10 + v * 3.2;
+          ctx.fillStyle = `rgba(249, 115, 22, ${Math.max(0, ventAlpha * (0.3 - v * 0.015))})`;
+          ctx.shadowColor = '#f97316';
+          ctx.shadowBlur = 10;
+          ctx.beginPath();
+          ctx.arc(vx, vy, Math.max(2, vSize), 0, Math.PI * 2);
+          ctx.fill();
+        }
+        ctx.restore();
       }
       ctx.restore();
 

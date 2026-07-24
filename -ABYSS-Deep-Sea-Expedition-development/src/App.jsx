@@ -17,6 +17,17 @@ import OceanDepthScroll from './components/OceanDepthScroll';
 import BioluminescentLab from './components/BioluminescentLab';
 import OceanDashboard from './components/OceanDashboard';
 import TestimonialsSection from './components/TestimonialsSection';
+import OceanCanvas from './components/OceanCanvas';
+import SubmarineTimeline from './components/SubmarineTimeline';
+import OceanNavigatorMap from './components/OceanNavigatorMap';
+
+import Lenis from 'lenis';
+import { gsap } from 'gsap';
+import { ScrollTrigger } from 'gsap/ScrollTrigger';
+
+if (typeof window !== 'undefined') {
+  gsap.registerPlugin(ScrollTrigger);
+}
 
 // ── Submarines Page (separate tab) ──────────────────────────────────────────
 import SubmarinesPage from './components/SubmarinesPage';
@@ -47,9 +58,27 @@ export default function App() {
   // Smooth scroll state
   const scrollRef = useRef(null);
 
-  // ── Scroll listener for depth ───────────────────────────────────────────
+  // ── Scroll listener with Lenis & GSAP ───────────────────────────────────
   useEffect(() => {
     if (activePage !== 'dive') return;
+
+    const lenis = new Lenis({
+      duration: 1.2,
+      easing: (t) => Math.min(1, 1.001 - Math.pow(2, -10 * t)),
+      smoothWheel: true,
+      touchMultiplier: 1.5,
+    });
+
+    lenis.on('scroll', () => {
+      ScrollTrigger.update();
+    });
+
+    const updateLenis = (time) => {
+      lenis.raf(time * 1000);
+    };
+
+    gsap.ticker.add(updateLenis);
+    gsap.ticker.lagSmoothing(0);
 
     const handleScroll = () => {
       const scrollY = window.scrollY;
@@ -68,15 +97,19 @@ export default function App() {
       const depth = Math.round(Math.min(11000, (depthScrollY / oceanScrollLength) * 11000));
       setCurrentDepth(depth);
 
-      // Camera sway
-      const sway = Math.sin(scrollY * 0.002) * 0.8;
+      // Subtle camera sway without horizontal shifting
+      const sway = Math.sin(scrollY * 0.0012) * 0.35;
       setCameraRotation(sway);
 
       oceanAudio.updateDepthAcoustics?.(ratio);
     };
 
     window.addEventListener('scroll', handleScroll, { passive: true });
-    return () => window.removeEventListener('scroll', handleScroll);
+    return () => {
+      window.removeEventListener('scroll', handleScroll);
+      gsap.ticker.remove(updateLenis);
+      lenis.destroy();
+    };
   }, [activePage]);
 
   // ── Smooth scroll to hero start on page switch back ─────────────────────
@@ -97,10 +130,23 @@ export default function App() {
     setBookingOpen(true);
   }, []);
 
+  const [discoveredSpecies, setDiscoveredSpecies] = useState(new Set());
+  const [discoveredLandmarks, setDiscoveredLandmarks] = useState(new Set());
+  const [discoveryToast, setDiscoveryToast] = useState(null);
+
   const handleCreatureClick = useCallback((creature, position) => {
     setActiveCreature(creature);
     setCreaturePosition(position);
     oceanAudio.playBubblePop?.();
+    if (creature?.id) {
+      setDiscoveredSpecies((prev) => {
+        if (!prev.has(creature.id)) {
+          setDiscoveryToast(`NEW SPECIES DISCOVERED: ${creature.name.toUpperCase()} (▼ ${creature.depth || creature.depthM + 'm'})`);
+          setTimeout(() => setDiscoveryToast(null), 4000);
+        }
+        return new Set(prev).add(creature.id);
+      });
+    }
   }, []);
 
   const handleDismissCreature = useCallback(() => {
@@ -155,8 +201,15 @@ export default function App() {
   // ═══════════════════════════════════════════════════════════════════════════
   return (
     <div
-      className="relative w-full min-h-screen bg-[#01040a] text-slate-100 selection:bg-cyan-400 selection:text-black"
+      className="relative w-full max-w-full overflow-x-hidden min-h-screen bg-[#01040a] text-slate-100 selection:bg-cyan-400 selection:text-black"
     >
+      {/* Dynamic ocean canvas background (0m to 11,000m continuous) */}
+      <OceanCanvas
+        depthRatio={depthRatio}
+        bioColor={bioColor}
+        onCreatureClick={handleCreatureClick}
+      />
+
       {/* Cursor orb */}
       <CursorOrb activeColor={bioColor} />
 
@@ -183,14 +236,22 @@ export default function App() {
         scrollProgress={depthRatio}
       />
 
+      {/* Floating Tactical Controller & Minimap & AI Mission Log */}
+      <OceanNavigatorMap
+        currentDepth={currentDepth}
+        depthRatio={depthRatio}
+        speciesFoundCount={discoveredSpecies.size}
+        landmarksFoundCount={discoveredLandmarks.size}
+      />
+
       {/* Main content — continuous descent */}
       <main
         ref={scrollRef}
-        className="relative"
+        className="relative w-full max-w-full overflow-x-hidden z-10"
         style={{
           transform: `rotate(${cameraRotation}deg)`,
           transformOrigin: 'center center',
-          transition: 'transform 600ms ease-out',
+          transition: 'transform 800ms cubic-bezier(0.16, 1, 0.3, 1)',
         }}
       >
         {/* Surface hero */}
@@ -225,6 +286,11 @@ export default function App() {
           currentDepth={currentDepth}
         />
 
+        {/* ─── Historic Submarine Timeline ─────────────────────────────── */}
+        <section id="timeline">
+          <SubmarineTimeline />
+        </section>
+
         {/* ─── Explorer Voices ──────────────────────────────────────────── */}
         <TestimonialsSection />
 
@@ -249,6 +315,56 @@ export default function App() {
           </div>
         </footer>
       </main>
+
+      {/* ─── Smart Depth Telemetry Toast ──────────────────────────────── */}
+      {(() => {
+        const msg = currentDepth >= 200 ? (
+          currentDepth < 500 ? "Sunlight fades completely. Entering the mesopelagic twilight zone." :
+          currentDepth < 1000 ? "Hydrostatic pressure reaches 50 atmospheres (735 PSI)." :
+          currentDepth < 2000 ? "Bathypelagic Boundary: Most military & commercial submarines cannot descend past this depth." :
+          currentDepth < 3500 ? "You have entered complete darkness. Hydrostatic pressure exceeds 250 atmospheres." :
+          currentDepth < 4000 ? "Approaching the R.M.S. Titanic wreck site at 3,784 meters." :
+          currentDepth < 6000 ? "Abyssal Plain: Ambient temperature drops to 1.5°C. Only deep-sea specialists survive here." :
+          currentDepth < 10000 ? "Entering the Hadal Trench. Only a handful of human submersibles have ever reached this realm." :
+          "Challenger Deep Seabed: Hydrostatic pressure reaches 1,086 atmospheres (8 tons per sq inch)."
+        ) : null;
+
+        if (!msg) return null;
+
+        return (
+          <div
+            className="fixed bottom-6 left-1/2 -translate-x-1/2 z-30 pointer-events-none px-5 py-2.5 rounded-full border shadow-2xl backdrop-blur-2xl flex items-center space-x-2.5 transition-all duration-700 max-w-md text-center"
+            style={{
+              background: 'rgba(3,10,24,0.85)',
+              borderColor: 'rgba(0,243,255,0.25)',
+              boxShadow: '0 0 30px rgba(0,243,255,0.15)',
+            }}
+          >
+            <span className="w-2 h-2 rounded-full bg-cyan-400 animate-ping inline-block flex-shrink-0" />
+            <span className="text-[10px] font-mono tracking-wider text-cyan-200 uppercase">
+              {msg}
+            </span>
+          </div>
+        );
+      })()}
+
+      {/* ─── Interactive Discovery Notification Toast ─────────────────── */}
+      {discoveryToast && (
+        <div
+          className="fixed top-24 right-6 z-40 pointer-events-none px-5 py-3 rounded-2xl border shadow-2xl backdrop-blur-2xl flex items-center space-x-3 animate-bounce"
+          style={{
+            background: 'radial-gradient(ellipse at 30% 30%, rgba(6,30,60,0.92) 0%, rgba(1,4,12,0.96) 100%)',
+            borderColor: 'rgba(0,243,255,0.4)',
+            boxShadow: '0 0 40px rgba(0,243,255,0.25), inset 0 0 15px rgba(0,243,255,0.1)',
+          }}
+        >
+          <div className="w-2.5 h-2.5 rounded-full bg-cyan-400 animate-ping inline-block flex-shrink-0" />
+          <div>
+            <div className="text-[8px] font-mono tracking-widest text-cyan-400 uppercase font-bold">SPECIES CATALOG UPDATED</div>
+            <div className="text-xs font-mono tracking-wide text-slate-100 font-bold">{discoveryToast}</div>
+          </div>
+        </div>
+      )}
 
       {/* AI Assistant */}
       <OceanAIAssistant onJumpToDepth={handleJumpToDepthSection} />

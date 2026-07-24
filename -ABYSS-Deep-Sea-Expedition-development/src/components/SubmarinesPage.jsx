@@ -1,6 +1,7 @@
 import React, { useState } from 'react';
 import { SUBMARINES } from '../utils/oceanData';
 import { oceanAudio } from '../utils/soundEngine';
+import SubmarineTimeline from './SubmarineTimeline';
 import {
   ArrowLeft, ChevronRight, CheckCircle2, Info, Zap, Shield, Eye, Anchor,
   Layers, Clock, Users, Star, Calendar
@@ -571,6 +572,11 @@ export default function SubmarinesPage({ onBack, onOpenBooking }) {
               </div>
             ))}
           </div>
+        </div>
+
+        {/* ─── HISTORIC SUBMERSIBLE TIMELINE ──────────────────────────── */}
+        <div className="mt-20 border-t border-white/5 pt-12">
+          <SubmarineTimeline />
         </div>
 
       </div>

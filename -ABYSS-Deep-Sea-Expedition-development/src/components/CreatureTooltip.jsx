@@ -32,8 +32,8 @@ export default function CreatureTooltip({ creature, position, onDismiss }) {
   const glowRGB = hexToRgb(glow);
 
   // Smart repositioning — keep tooltip on screen
-  const tooltipW = 260;
-  const tooltipH = 180;
+  const tooltipW = 320;
+  const tooltipH = 260;
   let x = position.x - tooltipW / 2;
   let y = position.y - tooltipH - 30;
   if (x < 12) x = 12;
@@ -80,43 +80,88 @@ export default function CreatureTooltip({ creature, position, onDismiss }) {
 
           {/* Bio-classification header */}
           <div
-            className="text-[8px] font-mono tracking-[0.35em] uppercase mb-2 flex items-center gap-1.5"
+            className="text-[8px] font-mono tracking-[0.35em] uppercase mb-1.5 flex items-center justify-between"
             style={{ color: `${glow}90` }}
           >
-            <span
-              className="w-1.5 h-1.5 rounded-full inline-block animate-pulse"
-              style={{ backgroundColor: glow, boxShadow: `0 0 8px ${glow}` }}
-            />
-            SPECIMEN IDENTIFIED
+            <span className="flex items-center gap-1.5">
+              <span
+                className="w-1.5 h-1.5 rounded-full inline-block animate-pulse"
+                style={{ backgroundColor: glow, boxShadow: `0 0 8px ${glow}` }}
+              />
+              SPECIMEN ANALYSIS
+            </span>
+            <span className="text-[7px] text-slate-500 uppercase tracking-widest">
+              {creature.type || 'MARINE SPECIES'}
+            </span>
           </div>
 
-          {/* Creature name */}
-          <div
-            className="text-sm font-bold tracking-wide mb-1 leading-tight"
-            style={{
-              color: '#f0fdff',
-              textShadow: `0 0 20px ${glow}80`,
-              fontFamily: "'Space Grotesk', sans-serif",
-            }}
-          >
-            {creature.name}
+          {/* Creature name & Scientific Name */}
+          <div className="mb-2">
+            <div
+              className="text-base font-extrabold tracking-wide leading-tight"
+              style={{
+                color: '#f0fdff',
+                textShadow: `0 0 20px ${glow}80`,
+                fontFamily: "'Cinzel', serif",
+              }}
+            >
+              {creature.name}
+            </div>
+            <div
+              className="text-[9px] font-mono italic"
+              style={{ color: `${glow}cc` }}
+            >
+              {creature.scientificName || `${creature.name.replace(/\s+/g, '')} oceanus`}
+            </div>
           </div>
 
-          {/* Depth badge */}
-          <div
-            className="inline-flex items-center gap-1 text-[9px] font-mono px-2 py-0.5 rounded-full mb-2"
-            style={{
-              background: `${glow}18`,
-              border: `1px solid ${glow}40`,
-              color: glow,
-            }}
-          >
-            ▼ {creature.depth}
+          {/* Depth & Status Badges */}
+          <div className="flex flex-wrap gap-1.5 mb-3">
+            <div
+              className="inline-flex items-center gap-1 text-[8px] font-mono px-2 py-0.5 rounded-full"
+              style={{
+                background: `${glow}18`,
+                border: `1px solid ${glow}40`,
+                color: glow,
+              }}
+            >
+              ▼ {creature.depth || `${creature.depthM}m`}
+            </div>
+            <div
+              className="inline-flex items-center gap-1 text-[8px] font-mono px-2 py-0.5 rounded-full bg-slate-900/80 border border-slate-700 text-slate-300"
+            >
+              STATUS: {creature.status || 'PROTECTED'}
+            </div>
+            <div
+              className="inline-flex items-center gap-1 text-[8px] font-mono px-2 py-0.5 rounded-full bg-emerald-950/60 border border-emerald-500/40 text-emerald-300"
+            >
+              DANGER: {creature.dangerLevel || 'MINIMAL'}
+            </div>
+          </div>
+
+          {/* Scientific Specs Grid */}
+          <div className="grid grid-cols-2 gap-1.5 p-2 rounded-xl bg-slate-950/60 border border-white/[0.05] text-[8px] font-mono mb-2">
+            <div>
+              <span className="text-slate-500 block">HABITAT</span>
+              <span className="text-slate-200 font-semibold">{creature.habitat || 'Open Ocean / Abyssal'}</span>
+            </div>
+            <div>
+              <span className="text-slate-500 block">DIET</span>
+              <span className="text-slate-200 font-semibold">{creature.diet || 'Zooplankton / Carnivore'}</span>
+            </div>
+            <div>
+              <span className="text-slate-500 block">SIZE / WEIGHT</span>
+              <span className="text-slate-200 font-semibold">{creature.size ? `${creature.size} cm` : 'Variable'} • {creature.weight || '120 kg'}</span>
+            </div>
+            <div>
+              <span className="text-slate-500 block">LIFESPAN</span>
+              <span className="text-slate-200 font-semibold">{creature.lifespan || '25–80 Years'}</span>
+            </div>
           </div>
 
           {/* Species fact */}
           <p
-            className="text-[10px] leading-relaxed text-slate-400 font-light"
+            className="text-[9px] leading-relaxed text-slate-300 font-light"
             style={{ fontFamily: "'JetBrains Mono', monospace" }}
           >
             {creature.fact}

@@ -171,6 +171,40 @@ class OceanSoundEngine {
       osc.stop(this.ctx.currentTime + 2.7);
     } catch (e) {}
   }
+
+  playMetalCreak() {
+    if (!this.ctx || this.isMuted) return;
+    try {
+      const osc = this.ctx.createOscillator();
+      const gain = this.ctx.createGain();
+      osc.type = 'sawtooth';
+      osc.frequency.setValueAtTime(65, this.ctx.currentTime);
+      osc.frequency.linearRampToValueAtTime(45, this.ctx.currentTime + 1.4);
+      gain.gain.setValueAtTime(0.04, this.ctx.currentTime);
+      gain.gain.exponentialRampToValueAtTime(0.001, this.ctx.currentTime + 1.4);
+      osc.connect(gain);
+      gain.connect(this.filterNode || this.ctx.destination);
+      osc.start();
+      osc.stop(this.ctx.currentTime + 1.5);
+    } catch (e) {}
+  }
+
+  playVentHiss() {
+    if (!this.ctx || this.isMuted) return;
+    try {
+      const osc = this.ctx.createOscillator();
+      const gain = this.ctx.createGain();
+      osc.type = 'triangle';
+      osc.frequency.setValueAtTime(220, this.ctx.currentTime);
+      osc.frequency.linearRampToValueAtTime(140, this.ctx.currentTime + 0.8);
+      gain.gain.setValueAtTime(0.03, this.ctx.currentTime);
+      gain.gain.exponentialRampToValueAtTime(0.001, this.ctx.currentTime + 0.8);
+      osc.connect(gain);
+      gain.connect(this.filterNode || this.ctx.destination);
+      osc.start();
+      osc.stop(this.ctx.currentTime + 0.9);
+    } catch (e) {}
+  }
 }
 
 export const oceanAudio = new OceanSoundEngine();

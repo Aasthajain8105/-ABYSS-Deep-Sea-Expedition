@@ -1,4 +1,4 @@
-import React, { useMemo } from 'react';
+import React, { useMemo, useState, useEffect } from 'react';
 import { OCEAN_ZONES } from '../utils/oceanData';
 
 /**
@@ -7,15 +7,33 @@ import { OCEAN_ZONES } from '../utils/oceanData';
  * that looks like a porthole-mounted pressure gauge.
  */
 export default function DepthHUD({ currentDepth, scrollProgress }) {
+  const [displayDepth, setDisplayDepth] = useState(currentDepth);
+
+  useEffect(() => {
+    let animId;
+    const updateLerp = () => {
+      setDisplayDepth((prev) => {
+        const diff = currentDepth - prev;
+        if (Math.abs(diff) < 0.5) return currentDepth;
+        return prev + diff * 0.14;
+      });
+      animId = requestAnimationFrame(updateLerp);
+    };
+    animId = requestAnimationFrame(updateLerp);
+    return () => cancelAnimationFrame(animId);
+  }, [currentDepth]);
+
+  const smoothDepth = Math.round(displayDepth);
+
   const currentZone = OCEAN_ZONES.find(
-    (z) => currentDepth >= z.depthMin && currentDepth <= z.depthMax
+    (z) => smoothDepth >= z.depthMin && smoothDepth <= z.depthMax
   ) || OCEAN_ZONES[OCEAN_ZONES.length - 1];
 
-  const pressureAtm = Math.round(1 + currentDepth / 10);
-  const tempC = currentDepth > 2000
-    ? (1.1 + (1 - currentDepth / 10994) * 1.5).toFixed(1)
-    : (25 - (currentDepth / 10994) * 23.9).toFixed(1);
-  const depthPct = Math.min(100, (currentDepth / 10994) * 100);
+  const pressureAtm = Math.round(1 + smoothDepth / 10);
+  const tempC = smoothDepth > 2000
+    ? (1.1 + (1 - smoothDepth / 10994) * 1.5).toFixed(1)
+    : (25 - (smoothDepth / 10994) * 23.9).toFixed(1);
+  const depthPct = Math.min(100, (smoothDepth / 10994) * 100);
 
   // Zone color for the arc
   const zoneColor = useMemo(() => {
@@ -198,9 +216,9 @@ export default function DepthHUD({ currentDepth, scrollProgress }) {
                 transition: 'color 1s ease, text-shadow 1s ease',
               }}
             >
-              {currentDepth > 999
-                ? `${(currentDepth / 1000).toFixed(1)}k`
-                : currentDepth.toLocaleString()
+              {smoothDepth > 999
+                ? `${(smoothDepth / 1000).toFixed(1)}k`
+                : smoothDepth.toLocaleString()
               }
             </div>
             <div

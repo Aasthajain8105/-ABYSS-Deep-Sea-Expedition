@@ -604,6 +604,126 @@ export function CreatureSVG({ type, color = '#00f3ff', glowColor, size = 80 }) {
       </svg>
     ),
 
+    shipwreck: (
+      <svg width={size * 1.2} height={size * 0.8} viewBox="0 0 120 80" style={{ filter, overflow: 'visible' }}>
+        <path d="M 10 60 L 40 20 L 70 60 Z" fill={color} opacity="0.85"/>
+        <path d="M 50 60 L 80 15 L 110 60 Z" fill={color} opacity="0.75"/>
+        <rect x="20" y="55" width="80" height="15" rx="3" fill={color} opacity="0.9"/>
+        <line x1="40" y1="20" x2="40" y2="70" stroke="rgba(255,255,255,0.4)" strokeWidth="3"/>
+        <line x1="80" y1="15" x2="80" y2="70" stroke="rgba(255,255,255,0.4)" strokeWidth="3"/>
+        <circle cx="40" cy="15" r="5" fill={glowColor || color} opacity="0.8"/>
+        <circle cx="80" cy="10" r="5" fill={glowColor || color} opacity="0.8"/>
+      </svg>
+    ),
+
+    flying_fish: (
+      <svg width={size * 1.1} height={size * 0.7} viewBox="0 0 110 70" style={{ filter, overflow: 'visible' }}>
+        <ellipse cx="50" cy="35" rx="32" ry="12" fill={color} opacity="0.9"/>
+        <polygon points="18,35 4,25 4,45" fill={color} opacity="0.85"/>
+        <path d="M 45 23 Q 25 2 10 12 Q 25 22 45 27 Z" fill={color} opacity="0.75"/>
+        <path d="M 45 47 Q 25 68 10 58 Q 25 48 45 43 Z" fill={color} opacity="0.75"/>
+        <circle cx="72" cy="32" r="4" fill="rgba(0,0,0,0.8)"/>
+        <circle cx="73" cy="31" r="1.2" fill="rgba(255,255,255,0.8)"/>
+      </svg>
+    ),
+
+    barracuda: (
+      <svg width={size * 1.5} height={size * 0.4} viewBox="0 0 150 40" style={{ filter, overflow: 'visible' }}>
+        <path d="M 10 20 Q 75 8 140 20 Q 75 32 10 20 Z" fill={color} opacity="0.92"/>
+        <polygon points="10,20 0,8 0,32" fill={color} opacity="0.85"/>
+        <path d="M 120 18 L 148 20 L 120 22 Z" fill="rgba(0,0,0,0.7)"/>
+        {[30,50,70,90,110].map(x => (
+          <line key={x} x1={x} y1="12" x2={x+4} y2="28" stroke="rgba(0,0,0,0.4)" strokeWidth="2"/>
+        ))}
+        <circle cx="125" cy="16" r="3.5" fill="rgba(0,0,0,0.8)"/>
+      </svg>
+    ),
+
+    lionfish: (
+      <svg width={size * 1.1} height={size * 0.9} viewBox="0 0 110 90" style={{ filter, overflow: 'visible' }}>
+        <ellipse cx="50" cy="45" rx="28" ry="18" fill={color} opacity="0.88"/>
+        {[0,1,2,3,4,5,6].map(i => (
+          <path key={i} d={`M ${25 + i * 8} 30 L ${15 + i * 10} 5 L ${30 + i * 8} 28 Z`} fill={color} opacity="0.75"/>
+        ))}
+        {[0,1,2,3,4].map(i => (
+          <path key={i} d={`M ${30 + i * 8} 60 L ${20 + i * 10} 85 L ${35 + i * 8} 62 Z`} fill={color} opacity="0.75"/>
+        ))}
+        <circle cx="68" cy="42" r="4" fill="rgba(0,0,0,0.8)"/>
+      </svg>
+    ),
+
+    man_o_war: (
+      <svg width={size * 0.8} height={size * 1.3} viewBox="0 0 80 130" style={{ filter, overflow: 'visible' }}>
+        <ellipse cx="40" cy="25" rx="30" ry="16" fill={color} opacity="0.85"/>
+        <path d="M 15 25 Q 40 5 65 25 Q 40 20 15 25 Z" fill="#c084fc" opacity="0.9"/>
+        {[10,22,34,46,58,70].map((x, i) => (
+          <path key={x} d={`M ${x} 38 Q ${x - 8 + i * 3} 80 ${x + 4 - i * 2} 125`} fill="none" stroke={color} strokeWidth="2.5" strokeLinecap="round" opacity="0.7"/>
+        ))}
+      </svg>
+    ),
+
+    orca: (
+      <svg width={size * 1.8} height={size * 0.8} viewBox="0 0 180 80" style={{ filter, overflow: 'visible' }}>
+        <path d="M 20 40 Q 90 10 165 40 Q 90 70 20 40 Z" fill="#0f172a" opacity="0.95"/>
+        <path d="M 60 42 Q 100 58 140 45 Q 100 35 60 42 Z" fill="#ffffff" opacity="0.9"/>
+        <ellipse cx="140" cy="34" rx="10" ry="5" fill="#ffffff" opacity="0.9"/>
+        <polygon points="90,20 85,-10 105,18" fill="#0f172a" opacity="0.95"/>
+        <polygon points="20,40 0,20 0,60" fill="#0f172a" opacity="0.9"/>
+        <circle cx="152" cy="38" r="3" fill="#ffffff"/>
+      </svg>
+    ),
+
+    blue_whale: (
+      <svg width={size * 2.4} height={size * 0.9} viewBox="0 0 240 90" style={{ filter, overflow: 'visible' }}>
+        <path d="M 20 45 Q 120 8 225 45 Q 120 82 20 45 Z" fill={color} opacity="0.85"/>
+        <polygon points="20,45 0,25 0,65" fill={color} opacity="0.8"/>
+        {[40,70,100,130,160,190].map(x => (
+          <line key={x} x1={x} y1="52" x2={x+15} y2="68" stroke="rgba(0,0,0,0.3)" strokeWidth="2"/>
+        ))}
+        <circle cx="210" cy="40" r="4" fill="rgba(0,0,0,0.8)"/>
+      </svg>
+    ),
+
+    sperm_whale: (
+      <svg width={size * 2.2} height={size * 0.9} viewBox="0 0 220 90" style={{ filter, overflow: 'visible' }}>
+        <path d="M 20 45 L 60 18 L 185 18 L 205 45 L 185 70 L 60 70 Z" fill={color} opacity="0.88" rx="10"/>
+        <polygon points="20,45 0,25 0,65" fill={color} opacity="0.8"/>
+        <circle cx="190" cy="40" r="4.5" fill="rgba(0,0,0,0.8)"/>
+        <path d="M 185 55 Q 140 60 100 55" fill="none" stroke="rgba(0,0,0,0.5)" strokeWidth="3"/>
+      </svg>
+    ),
+
+    colossal_squid: (
+      <svg width={size * 1.8} height={size * 1.2} viewBox="0 0 180 120" style={{ filter, overflow: 'visible' }}>
+        <ellipse cx="130" cy="60" rx="42" ry="24" fill={color} opacity="0.88"/>
+        {[0,1,2,3,4,5,6,7].map(i => (
+          <path key={i} d={`M 90 ${30 + i * 8} Q 40 ${15 + i * 12} 5 ${25 + i * 10}`} fill="none" stroke={color} strokeWidth="4" strokeLinecap="round" opacity="0.8"/>
+        ))}
+        <circle cx="120" cy="50" r="8" fill="rgba(0,0,0,0.85)"/>
+        <circle cx="122" cy="48" r="3" fill="#ffffff"/>
+      </svg>
+    ),
+
+    brittle_star: (
+      <svg width={size * 0.9} height={size * 0.9} viewBox="0 0 90 90" style={{ filter, overflow: 'visible' }}>
+        <circle cx="45" cy="45" r="10" fill={color} opacity="0.9"/>
+        {[0,1,2,3,4].map(i => {
+          const a = (i / 5) * Math.PI * 2;
+          return (
+            <path key={i} d={`M 45 45 Q ${45 + Math.cos(a)*25 + 10} ${45 + Math.sin(a)*25} ${45 + Math.cos(a)*42} ${45 + Math.sin(a)*42}`} fill="none" stroke={color} strokeWidth="3.5" strokeLinecap="round" opacity="0.85"/>
+          );
+        })}
+      </svg>
+    ),
+
+    hadal_snailfish: (
+      <svg width={size * 1.0} height={size * 0.5} viewBox="0 0 100 50" style={{ filter, overflow: 'visible' }}>
+        <path d="M 15 25 Q 55 10 90 25 Q 55 40 15 25 Z" fill={color} opacity="0.6"/>
+        <circle cx="78" cy="21" r="3" fill="rgba(0,0,0,0.6)"/>
+        <path d="M 90 25 Q 98 15 95 35 Z" fill={color} opacity="0.5"/>
+      </svg>
+    ),
+
   };
 
   return svgs[type] || svgs['fish'];
