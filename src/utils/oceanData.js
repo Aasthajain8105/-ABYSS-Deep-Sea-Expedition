@@ -1,3 +1,6 @@
+import nautilusX from '../assets/nautilus_x.png';
+import titanHadal from '../assets/titan_hadal.png';
+import abyssalOdyssey from '../assets/abyssal_odyssey.png';
 export const OCEAN_ZONES = [
   {
     id: 'surface',
@@ -91,7 +94,7 @@ export const SUBMARINES = [
       { id: 'thrusters', name: 'Silent Bio-Mag Thrusters', x: 20, y: 65, desc: 'Zero-vibration electromagnetic propulsion that does not disturb marine life.' },
       { id: 'lights', name: '120,000 Lumen LED Matrix', x: 80, y: 60, desc: 'Custom 450nm wavelength illuminators that reveal hidden ocean colors.' }
     ],
-    image: '/src/assets/nautilus_x.png'
+    image: nautilusX,
   },
   {
     id: 'titan-hadal',
@@ -117,7 +120,7 @@ export const SUBMARINES = [
       { id: 'thrusters', name: 'High-Torque Vector Engines', x: 18, y: 70, desc: 'Vectoring propulsion allowing precise maneuverability near abyssal walls.' },
       { id: 'lights', name: 'Hydrothermal Thermal Scanner', x: 82, y: 55, desc: 'Infrared & UV multispectral camera to map black smoker temperatures.' }
     ],
-    image: '/src/assets/titan_hadal.png'
+    image: titanHadal,
   },
   {
     id: 'abyssal-voyager',
@@ -143,7 +146,7 @@ export const SUBMARINES = [
       { id: 'thrusters', name: 'Dual Jet Hydro-Drives', x: 15, y: 60, desc: 'Ultra-smooth waterjet propulsion for cruising along coral walls.' },
       { id: 'lights', name: 'Ambient Mood & Bio Lights', x: 85, y: 45, desc: 'Dynamic internal ambient lighting synced to external water colors.' }
     ],
-    image: '/src/assets/abyssal_odyssey.png'
+    image: abyssalOdyssey,
   }
 ];
 
