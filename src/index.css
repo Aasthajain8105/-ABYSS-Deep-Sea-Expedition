@@ -1,0 +1,115 @@
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
+
+@layer base {
+  body {
+    background-color: #01040a;
+    color: #cbd5e1;
+    font-family: 'Plus Jakarta Sans', sans-serif;
+    cursor: default;
+    overflow-x: hidden;
+  }
+  
+  h1, h2, h3, .font-serif-luxury {
+    font-family: 'Cinzel', 'Cinzel Decorative', serif;
+  }
+
+  .font-display {
+    font-family: 'Space Grotesk', sans-serif;
+  }
+
+  .font-mono {
+    font-family: 'JetBrains Mono', monospace;
+  }
+}
+
+/* Apple Vision Pro Luxury Glassmorphism Utilities */
+.glass-panel-luxury {
+  background: rgba(255, 255, 255, 0.025);
+  backdrop-filter: blur(32px);
+  -webkit-backdrop-filter: blur(32px);
+  border: 1px solid rgba(255, 255, 255, 0.07);
+  box-shadow: 0 30px 60px -12px rgba(0, 0, 0, 0.7);
+}
+
+.glass-panel-subtle {
+  background: rgba(8, 18, 36, 0.4);
+  backdrop-filter: blur(24px);
+  -webkit-backdrop-filter: blur(24px);
+  border: 1px solid rgba(255, 255, 255, 0.05);
+}
+
+.glass-card-luxury {
+  background: rgba(255, 255, 255, 0.02);
+  backdrop-filter: blur(16px);
+  border: 1px solid rgba(255, 255, 255, 0.06);
+  transition: all 0.6s cubic-bezier(0.16, 1, 0.3, 1);
+}
+
+.glass-card-luxury:hover {
+  background: rgba(255, 255, 255, 0.04);
+  border-color: rgba(140, 232, 255, 0.25);
+  transform: translateY(-4px);
+}
+
+/* Subtly Glowing Luxury Text */
+.glow-text-subtle {
+  text-shadow: 0 0 40px rgba(140, 232, 255, 0.25);
+}
+
+.glow-text-gold {
+  text-shadow: 0 0 35px rgba(255, 215, 0, 0.25);
+}
+
+/* Custom Minimal Scrollbar */
+::-webkit-scrollbar {
+  width: 4px;
+}
+::-webkit-scrollbar-track {
+  background: #01040a;
+}
+::-webkit-scrollbar-thumb {
+  background: rgba(255, 255, 255, 0.15);
+  border-radius: 2px;
+}
+::-webkit-scrollbar-thumb:hover {
+  background: rgba(140, 232, 255, 0.4);
+}
+
+/* Smooth Canvas Overlay */
+canvas {
+  touch-action: none;
+}
+
+/* Underwater Camera Sway Micro-Movement */
+@keyframes cameraSway {
+  0%, 100% {
+    transform: rotate(0deg) translateY(0px);
+  }
+  25% {
+    transform: rotate(0.6deg) translateY(-3px);
+  }
+  75% {
+    transform: rotate(-0.6deg) translateY(3px);
+  }
+}
+
+.animate-camera-sway {
+  animation: cameraSway 14s ease-in-out infinite;
+}
+
+@keyframes floatSlow {
+  0%, 100% {
+    transform: translateY(0px);
+  }
+  50% {
+    transform: translateY(-8px);
+  }
+}
+
+.animate-float-slow {
+  animation: floatSlow 8s ease-in-out infinite;
+}
+
+
